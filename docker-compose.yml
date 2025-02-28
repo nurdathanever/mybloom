@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:13
+    container_name: mybloom_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: mybloomdb
+      POSTGRES_USER: mybloomuser
+      POSTGRES_PASSWORD: mybloompwd
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: mybloom_web
+    env_file:
+      - .env
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
