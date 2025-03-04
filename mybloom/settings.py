@@ -38,6 +38,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts",
+    "products",
+    "orders",
+    "reviews",
+    "delivery",
 ]
 
 MIDDLEWARE = [
@@ -75,14 +80,14 @@ WSGI_APPLICATION = "mybloom.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': os.environ.get('POSTGRES_DB'),
-    'USER': os.environ.get('POSTGRES_USER'),
-    'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-    'HOST': 'db',  # name of the service in docker-compose
-    'PORT': '5432',
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mybloomdb',
+        'USER': 'mybloomuser',
+        'PASSWORD': 'mybloompwd',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 
@@ -126,3 +131,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "accounts.User"
