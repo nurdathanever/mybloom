@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to MyBloom{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-4 text-primary">Welcome to MyBloom</h1>
+    <p class="lead text-muted">
+        Discover beautiful flowers and bouquets tailored just for you.
+    </p>
+    <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Shop Now</a>
+</div>
+{% endblock %}
