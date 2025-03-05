@@ -11,7 +11,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    networks:
+      - mybloom_network
 
   web:
     build: .
@@ -25,6 +27,11 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    networks:
+      - mybloom_network
 
 volumes:
   pgdata:
+
+networks:
+  mybloom_network:

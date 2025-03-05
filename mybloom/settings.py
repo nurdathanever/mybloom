@@ -64,7 +64,7 @@ DATABASES = {
         'NAME': 'mybloomdb',
         'USER': 'mybloomuser',
         'PASSWORD': 'mybloompwd',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
