@@ -64,7 +64,7 @@ DATABASES = {
         'NAME': 'mybloomdb',
         'USER': 'mybloomuser',
         'PASSWORD': 'mybloompwd',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -107,3 +107,31 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": [
+            {
+                "client_id": "659723289101-l9fp6k25cbt0mked6gd0pic187vrqklp.apps.googleusercontent.com",
+                "secret": "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",
+                "key": "",
+                "settings": {
+                    "scope": [
+                        "profile",
+                        "email",
+                    ],
+                    "auth_params": {
+                        "access_type": "online",
+                    },
+                },
+            },
+        ],
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        }
+}
