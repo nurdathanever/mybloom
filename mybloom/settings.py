@@ -112,8 +112,8 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APPS": [
             {
-                "client_id": "659723289101-l9fp6k25cbt0mked6gd0pic187vrqklp.apps.googleusercontent.com",
-                "secret": "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",
+                "client_id": os.environ.get('GOOGLE_OAUTH_CLIENT_ID'),
+                "secret": os.environ.get("GOOGLE_OAUTH_SECRET"),
                 "key": "",
                 "settings": {
                     "scope": [
