@@ -1,18 +1,16 @@
 {% extends "base.html" %}
-
-{% block title %}Welcome to MyBloom{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Welcome to MyBloom" %}{% endblock %}
 
 {% block content %}
-<div class="container text-center py-5">
-    <h1 class="display-4 text-primary">Welcome to MyBloom</h1>
-    <p class="lead text-muted">
-        Where Every Bloom Tells a Story
-    </p>
-    <p class="lead text-muted">
-        Create bouquets that say “I love you,” “Thank you,” or simply “Smile.”
-        Mix colors, play with shapes, and experiment with unique combinations—our AI will help bring your floral vision to life.
-        Here, creativity knows no bounds—just the magic of fresh flowers and your limitless imagination!
-    </p>
-    <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Bloom it!</a>
-</div>
+    <div class="container text-center py-5">
+        <h1 class="display-4 text-primary">{% trans "Welcome to MyBloom" %}</h1>
+        <p class="lead text-muted">
+            {% trans "Where Every Bloom Tells a Story" %}
+        </p>
+        <p class="lead text-muted">
+            {% trans "Create bouquets that say “I love you,” “Thank you,” or simply “Smile.” Mix colors, play with shapes, and experiment with unique combinations—our AI will help bring your floral vision to life. Here, creativity knows no bounds—just the magic of fresh flowers and your limitless imagination!" %}
+        </p>
+        <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Bloom it!</a>
+    </div>
 {% endblock %}
