@@ -1,5 +1,5 @@
 from django.db import models
-
+from decimal import Decimal
 
 class Product(models.Model):
     CATEGORY_CHOICES = [
@@ -19,8 +19,9 @@ class Product(models.Model):
     image = models.ImageField(upload_to="product_images/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
     def discounted_price(self):
-        return self.price * (1 - self.discount / 100)
+        return self.price * (Decimal('1') - Decimal(self.discount) / Decimal('100'))
 
     def __str__(self):
         return f"{self.name} - {self.category}"

@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, resolve_url
 from django.contrib.auth import login, get_user_model, logout, update_session_auth_hash
 from .forms import CustomUserCreationForm, ProfileUpdateForm, CustomPasswordChangeForm
 from django.contrib import messages
+from allauth.account.views import LoginView
 
 
 User = get_user_model()
@@ -52,3 +53,13 @@ def change_password(request):
         form = CustomPasswordChangeForm(request.user)
 
     return render(request, "accounts/change_password.html", {"form": form})
+
+
+class CustomLoginView(LoginView):
+    """Custom login view to redirect users based on their role after login."""
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            if user.role == "admin":
+                return resolve_url("admin_dashboard")  # Admins → admin dashboard
+        return resolve_url("home")  # Users → main page

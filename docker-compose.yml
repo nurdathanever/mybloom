@@ -29,9 +29,11 @@ services:
       - db
     networks:
       - mybloom_network
+      - media_volume:/app/media
 
 volumes:
   pgdata:
+  media_volume:
 
 networks:
   mybloom_network:

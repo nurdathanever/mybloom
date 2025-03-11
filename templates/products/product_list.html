@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Product Catalog{% endblock %}
+{% block content %}
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="display-4 fw-bold">Our Collection</h2>
+        <p class="lead text-muted">Choose your preferences to find the perfect bouquet!</p>
+    </div>
+
+    <div class="row">
+        {% for product in products %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm position-relative h-100">
+                
+                {% if product.discount > 0 %}
+                <div class="position-absolute top-0 start-0 bg-dark text-white px-2 py-1 rounded-end">
+                    -{{ product.discount }}%
+                </div>
+                {% endif %}
+                
+                {% if product.image %}
+                <div class="overflow-hidden" style="height: 500px;">
+                    <img src="{{ product.image.url }}" class="card-img-top w-100 h-100 object-fit-cover" alt="{{ product.name }}">
+                </div>
+                {% endif %}
+                
+                <div class="card-body text-center">
+                    <h5 class="fw-bold text-uppercase">{{ product.name }}</h5>
+                    <p class="text-muted mb-1">{{ product.description|truncatewords:10 }}</p>
+                    
+                    {% if product.discount > 0 %}
+                        <p class="text-danger fs-5 fw-bold">{{ product.discounted_price|floatformat:0 }} KZT</p>
+                        <p class="text-decoration-line-through text-muted small">{{ product.price|floatformat:0 }} KZT</p>
+                    {% else %}
+                        <p class="fs-5 fw-bold">{{ product.price|floatformat:0 }} KZT</p>
+                    {% endif %}
+                    
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-dark mt-2">Buy Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

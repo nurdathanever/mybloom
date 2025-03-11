@@ -1,6 +1,11 @@
 from pathlib import Path
 import os
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import redirect
+import dotenv
+from dotenv import load_dotenv
+
+load_dotenv()
 
 LANGUAGES = [
     ("en", _("English")),
@@ -14,6 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback_key')
 DEBUG = 'True'
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -34,6 +40,7 @@ INSTALLED_APPS = [
     "orders",
     "reviews",
     "delivery",
+    "admin_panel",
 ]
 
 MIDDLEWARE = [
@@ -53,7 +60,7 @@ ROOT_URLCONF = "mybloom.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [os.path.join(BASE_DIR, 'templates'), os.path.join(BASE_DIR, 'templates', 'allauth')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -107,6 +114,9 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
@@ -116,12 +126,11 @@ AUTH_USER_MODEL = "accounts.User"
 SITE_ID = 1
 LOGOUT_REDIRECT_URL = "/"
 SIGNUP_REDIRECT_URL = "/"
-LOGIN_REDIRECT_URL = "/"
+# LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "optional"
-ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -150,3 +159,5 @@ SOCIALACCOUNT_PROVIDERS = {
         },
         }
 }
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
