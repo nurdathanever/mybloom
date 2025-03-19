@@ -13,3 +13,12 @@ class ProductForm(forms.ModelForm):
             "stock": forms.NumberInput(attrs={"class": "form-control"}),
             "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        category = self.initial.get("category") or self.data.get("category")
+        if category != "bouquet":
+            self.fields.pop("size", None)
+            self.fields.pop("seasonality", None)
+            self.fields.pop("style", None)
+            self.fields.pop("flower_ingredients", None)

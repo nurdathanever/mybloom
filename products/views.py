@@ -9,26 +9,51 @@ def is_admin(user):
     return user.is_authenticated and user.role == "admin"
 
 def product_list(request):
-    """Display all products with search and filter options."""
-    query = request.GET.get("q", "")
-    category = request.GET.get("category", "")
+    products = Product.objects.filter(category='bouquet')
 
-    products = Product.objects.all()
+    # Filters
+    flower_type = request.GET.get("flower_type")
+    size = request.GET.get("size")
+    seasonality = request.GET.get("seasonality")
+    style = request.GET.get("style")
+    min_price = request.GET.get("min_price")
+    max_price = request.GET.get("max_price")
+    sort = request.GET.get("sort")
 
-    if query:
-        products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
+    if flower_type:
+        products = products.filter(flower_ingredients__name__icontains=flower_type)
 
-    if category:
-        products = products.filter(category=category)
+    if size:
+        products = products.filter(size=size)
 
-    categories = Product.CATEGORY_CHOICES  # Get category choices
+    if seasonality:
+        products = products.filter(seasonality=seasonality)
 
-    return render(request, "products/product_list.html", {
+    if style:
+        products = products.filter(style=style)
+
+    if min_price:
+        products = products.filter(price__gte=min_price)
+
+    if max_price:
+        products = products.filter(price__lte=max_price)
+
+    if sort == "rating":
+        products = products.order_by("-rating")  # add rating field later
+    elif sort == "arrival":
+        products = products.order_by("-created_at")
+    elif sort == "sale":
+        products = products.order_by("-discount")
+    elif sort == "bestselling":
+        products = products.order_by("-sales")  # add sales field later
+
+    flower_types = Product.objects.filter(category="flower").values_list("name", flat=True).distinct()
+
+    context = {
         "products": products,
-        "categories": categories,
-        "query": query,
-        "selected_category": category,
-    })
+        "flower_types": flower_types,
+    }
+    return render(request, "products/product_list.html", context)
 
 
 def product_detail(request, product_id):

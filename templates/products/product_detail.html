@@ -4,17 +4,25 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
-        </div>
-        <div class="col-md-6">
-            <h2>{{ product.name }}</h2>
-            <p>{{ product.description }}</p>
-            <p class="text-danger fw-bold">{% trans "Price" %}: {{ product.discounted_price }} KZT</p>
-            <p><strong>{% trans "Category" %}:</strong> {% trans product.category %}</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+            </div>
+            <div class="col-md-6">
+                <h2>{{ product.name }}</h2>
+                <p>{{ product.description }}</p>
+                <p class="text-danger fw-bold">{% trans "Price" %}: {{ product.discounted_price }} KZT</p>
+                <p><strong>{% trans "Category" %}:</strong> {% trans product.category %}</p>
+                {% if product.flower_ingredients.exists %}
+                    <div class="mt-2">
+                        <small>Contains:</small>
+                        {% for flower in product.flower_ingredients.all %}
+                            <span class="badge bg-light text-dark">{{ flower.name }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

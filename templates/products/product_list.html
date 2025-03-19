@@ -3,46 +3,133 @@
 {% block title %}Product Catalog{% endblock %}
 {% block content %}
 
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h2 class="display-4 fw-bold">Our Collection</h2>
-        <p class="lead text-muted">Choose your preferences to find the perfect bouquet!</p>
-    </div>
+    <div class="container my-5">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold">Our Collection</h2>
+        </div>
 
-    <div class="row">
-        {% for product in products %}
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm position-relative h-100">
-                
-                {% if product.discount > 0 %}
-                <div class="position-absolute top-0 start-0 bg-dark text-white px-2 py-1 rounded-end">
-                    -{{ product.discount }}%
+        <form method="get" class="mb-4">
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3 fw-bold">Choose your preferences to find the perfect bouquet!</h5>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>Flower Type</label>
+                        <select name="flower_type" class="form-select">
+                            <option value="">All</option>
+                            {% for ft in flower_types %}
+                                <option value="{{ ft }}"
+                                        {% if request.GET.flower_type == ft %}selected{% endif %}>{{ ft }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Bouquet Size</label>
+                        <select class="form-select" name="size">
+                            <option value="">All</option>
+                            <option value="S" {% if request.GET.size == "S" %}selected{% endif %}>Small</option>
+                            <option value="M" {% if request.GET.size == "M" %}selected{% endif %}>Medium</option>
+                            <option value="L" {% if request.GET.size == "L" %}selected{% endif %}>Large</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Seasonality</label>
+                        <select class="form-select" name="seasonality">
+                            <option value="">All</option>
+                            <option value="spring" {% if request.GET.seasonality == "spring" %}selected{% endif %}>
+                                Spring
+                            </option>
+                            <option value="summer" {% if request.GET.seasonality == "summer" %}selected{% endif %}>
+                                Summer
+                            </option>
+                            <option value="autumn" {% if request.GET.seasonality == "autumn" %}selected{% endif %}>
+                                Autumn
+                            </option>
+                            <option value="winter" {% if request.GET.seasonality == "winter" %}selected{% endif %}>
+                                Winter
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Style</label>
+                        <select class="form-select" name="style">
+                            <option value="">All</option>
+                            <option value="classic" {% if request.GET.style == "classic" %}selected{% endif %}>Classic
+                            </option>
+                            <option value="minimalistic"
+                                    {% if request.GET.style == "minimalistic" %}selected{% endif %}>Minimalistic
+                            </option>
+                            <option value="exotic" {% if request.GET.style == "exotic" %}selected{% endif %}>Exotic
+                            </option>
+                            <option value="lush" {% if request.GET.style == "lush" %}selected{% endif %}>Lush</option>
+                            <option value="mono" {% if request.GET.style == "mono" %}selected{% endif %}>Mono</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Min Price</label>
+                        <input type="number" name="min_price" class="form-control" value="{{ request.GET.min_price }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Max Price</label>
+                        <input type="number" name="max_price" class="form-control" value="{{ request.GET.max_price }}">
+                    </div>
+                    <div class="col-md-2 mt-3">
+                        <label>Sort By</label>
+                        <select name="sort" class="form-select">
+                            <option value="">Default</option>
+                            <option value="rating" {% if request.GET.sort == "rating" %}selected{% endif %}>Rating
+                            </option>
+                            <option value="arrival" {% if request.GET.sort == "arrival" %}selected{% endif %}>New
+                                Arrival
+                            </option>
+                            <option value="sale" {% if request.GET.sort == "sale" %}selected{% endif %}>Sale</option>
+                            <option value="bestselling" {% if request.GET.sort == "bestselling" %}selected{% endif %}>
+                                Bestselling
+                            </option>
+                        </select>
+                    </div>
                 </div>
-                {% endif %}
-                
-                {% if product.image %}
-                <div class="overflow-hidden" style="height: 500px;">
-                    <img src="{{ product.image.url }}" class="card-img-top w-100 h-100 object-fit-cover" alt="{{ product.name }}">
-                </div>
-                {% endif %}
-                
-                <div class="card-body text-center">
-                    <h5 class="fw-bold text-uppercase">{{ product.name }}</h5>
-                    <p class="text-muted mb-1">{{ product.description|truncatewords:10 }}</p>
-                    
-                    {% if product.discount > 0 %}
-                        <p class="text-danger fs-5 fw-bold">{{ product.discounted_price|floatformat:0 }} KZT</p>
-                        <p class="text-decoration-line-through text-muted small">{{ product.price|floatformat:0 }} KZT</p>
-                    {% else %}
-                        <p class="fs-5 fw-bold">{{ product.price|floatformat:0 }} KZT</p>
-                    {% endif %}
-                    
-                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-dark mt-2">Buy Now</a>
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-primary">Apply</button>
                 </div>
             </div>
+        </form>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm position-relative h-100">
+
+                        {% if product.discount > 0 %}
+                            <div class="position-absolute top-0 start-0 bg-dark text-white px-2 py-1 rounded-end">
+                                -{{ product.discount }}%
+                            </div>
+                        {% endif %}
+
+                        {% if product.image %}
+                            <div class="overflow-hidden" style="height: 500px;">
+                                <img src="{{ product.image.url }}" class="card-img-top w-100 h-100 object-fit-cover"
+                                     alt="{{ product.name }}">
+                            </div>
+                        {% endif %}
+
+                        <div class="card-body text-center">
+                            <h5 class="fw-bold text-uppercase">{{ product.name }}</h5>
+                            <p class="text-muted mb-1">{{ product.description|truncatewords:10 }}</p>
+
+                            {% if product.discount > 0 %}
+                                <p class="text-danger fs-5 fw-bold">{{ product.discounted_price|floatformat:0 }} KZT</p>
+                                <p class="text-decoration-line-through text-muted small">{{ product.price|floatformat:0 }}
+                                    KZT</p>
+                            {% else %}
+                                <p class="fs-5 fw-bold">{{ product.price|floatformat:0 }} KZT</p>
+                            {% endif %}
+
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-dark mt-2">Buy
+                                Now</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-</div>
 
 {% endblock %}

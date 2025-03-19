@@ -9,6 +9,10 @@ class Product(models.Model):
         ("ribbon", "Ribbon"),
         ("postcard", "Postcard"),
     ]
+    BOUQUET_SIZES = [("S", "Small"), ("M", "Medium"), ("L", "Large")]
+    SEASONALITY_CHOICES = [("spring", "Spring"), ("summer", "Summer"), ("autumn", "Autumn"), ("winter", "Winter")]
+    STYLE_CHOICES = [("classic", "Classic"), ("minimalistic", "Minimalistic"), ("exotic", "Exotic"), ("lush", "Lush"),
+                     ("mono", "Mono")]
 
     name = models.CharField(max_length=255)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
@@ -18,6 +22,12 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=1)
     image = models.ImageField(upload_to="product_images/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    flower_ingredients = models.ManyToManyField("self", blank=True, symmetrical=False,
+                                                limit_choices_to={'category': 'flower'})
+    size = models.CharField(max_length=10, choices=BOUQUET_SIZES, blank=True, null=True)
+    seasonality = models.CharField(max_length=10, choices=SEASONALITY_CHOICES, blank=True, null=True)
+    style = models.CharField(max_length=20, choices=STYLE_CHOICES, blank=True, null=True)
 
     @property
     def discounted_price(self):

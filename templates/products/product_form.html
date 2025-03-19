@@ -1,10 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-    <h2 class="text-center">{% if form.instance.pk %}Edit Product{% else %}Add Product{% endif %}</h2>
+    <h2 class="text-center mb-4">{% if form.instance.pk %}Edit Product{% else %}Add Product{% endif %}</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">{{ form.name.label }} {{ form.name }}</div>
+        <div class="mb-3">{{ form.category.label }} {{ form.category }}</div>
+        <div class="mb-3">{{ form.description.label }} {{ form.description }}</div>
+        <div class="mb-3">{{ form.price.label }} {{ form.price }}</div>
+        <div class="mb-3">{{ form.discount.label }} {{ form.discount }}</div>
+        <div class="mb-3">{{ form.stock.label }} {{ form.stock }}</div>
+        <div class="mb-3">{{ form.image.label }} {{ form.image }}</div>
+
+        {% if form.fields.size %}
+        <div class="mb-3">{{ form.size.label }} {{ form.size }}</div>
+        <div class="mb-3">{{ form.seasonality.label }} {{ form.seasonality }}</div>
+        <div class="mb-3">{{ form.style.label }} {{ form.style }}</div>
+        <div class="mb-3">{{ form.flower_ingredients.label }} {{ form.flower_ingredients }}</div>
+        {% endif %}
+
         <button type="submit" class="btn btn-success w-100">Save</button>
     </form>
 </div>
