@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .order-success-container {
+    max-width: 700px;
+    margin: 80px auto;
+    padding: 40px;
+    background-color: #1a1a1a;
+    border-radius: 16px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    text-align: center;
+    color: #fff;
+  }
+
+  .order-success-container h2 {
+    color: #e94e77;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  .order-success-container p {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .order-success-container img {
+    border-radius: 12px;
+    margin-top: 25px;
+    max-height: 300px;
+  }
+
+  .btn-home {
+    margin-top: 30px;
+    background-color: #e94e77;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+  }
+</style>
+
+<div class="order-success-container">
+  <h2>Order Placed Successfully!</h2>
+  <p>Thank you for choosing <strong>MyBloom</strong>.</p>
+  <p><strong>Total:</strong> {{ order.total_price }} KZT</p>
+
+  {% if order.ai_bouquet_image %}
+    <img src="{{ order.ai_bouquet_image.url }}" alt="Your AI-Generated Bouquet">
+  {% endif %}
+
+  <br>
+  <a href="{% url 'home' %}" class="btn-home">Back to Home</a>
+</div>
+{% endblock %}

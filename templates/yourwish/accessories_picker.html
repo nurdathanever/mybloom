@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <style>
+        .accessory-card {
+            position: relative;
+            text-align: center;
+            background-color: #111;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease;
+        }
+
+        .accessory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .accessory-image {
+            border-radius: 12px;
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .accessory-name-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            text-align: center;
+        }
+
+        .quantity-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-controls button {
+            background-color: #e94e77;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            border-radius: 6px;
+        }
+
+        .quantity-controls span {
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .accessory-price {
+            color: white;
+            margin-top: 8px;
+            font-size: 15px;
+        }
+    </style>
+    <h2 class="text-center text-light mb-4">Choose Accessories</h2>
+    <form id="accessoryForm" method="post" action="{% url 'yourwish_blooming' %}">
+        {% csrf_token %}
+
+        <h4 class="text-white">Wrapping Papers</h4>
+        <div class="row mb-4">
+            {% for paper in papers %}
+                <div class="col-md-3 mb-4">
+                    <div class="accessory-card">
+                        <div class="position-relative">
+                            <img src="{{ paper.image.url }}" class="accessory-image">
+                            <div class="accessory-name-overlay">{{ paper.name }}</div>
+                        </div>
+                        <div class="form-check mt-3">
+                            <input type="radio" name="wrapping_paper" value="{{ paper.id }}" class="form-check-input">
+                            <label class="form-check-label text-white">{{ paper.name }} - {{ paper.price }} KZT</label>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h4 class="text-white">Ribbons / Bows</h4>
+        <div class="row mb-4">
+            {% for ribbon in ribbons %}
+                <div class="col-md-3 mb-4">
+                    <div class="accessory-card">
+                        <div class="position-relative">
+                            <img src="{{ ribbon.image.url }}" class="accessory-image">
+                            <div class="accessory-name-overlay">{{ ribbon.name }}</div>
+                        </div>
+                        <div class="form-check mt-3">
+                            <input type="radio" name="ribbon" value="{{ ribbon.id }}" class="form-check-input">
+                            <label class="form-check-label text-white">{{ ribbon.name }} - {{ ribbon.price }}
+                                KZT</label>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Bloom It</button>
+        </div>
+    </form>
+{% endblock %}

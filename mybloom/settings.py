@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "reviews",
     "delivery",
     "admin_panel",
+    "yourwish"
 ]
 
 MIDDLEWARE = [
@@ -111,7 +112,8 @@ LOCALE_PATHS = [
 ]
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]      # Source of your files
+STATIC_ROOT = BASE_DIR / "staticfiles"        # Destination for production use
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "/media/"

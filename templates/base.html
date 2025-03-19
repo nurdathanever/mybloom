@@ -37,6 +37,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "Home" %}</a></li>
                 {% endif %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'yourwish_flowers' %}">YourWish</a></li>
 
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "My Account" %}</a>

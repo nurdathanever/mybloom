@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .card-picker-container {
+    text-align: center;
+    color: #805252;
+    padding: 80px 20px;
+  }
+  .card-options {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  .card-item {
+    position: relative;
+  }
+  .card-item img {
+    height: 160px;
+    width: auto;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    transition: 0.3s ease;
+    cursor: pointer;
+  }
+  .card-item input[type="radio"] {
+    display: none;
+  }
+  .card-item input[type="radio"]:checked + img {
+    border-color: #e94e77;
+    box-shadow: 0 0 10px #e94e77;
+  }
+  .message-box {
+    margin-top: 40px;
+  }
+  .message-box textarea {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    resize: none;
+  }
+  .btn-skip, .btn-add {
+    width: 130px;
+    margin: 20px 10px;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 8px;
+  }
+  .btn-skip {
+    background: white;
+    border: 2px solid #e94e77;
+    color: #e94e77;
+  }
+  .btn-add {
+    background: #e94e77;
+    color: white;
+    border: none;
+  }
+</style>
+
+<div class="card-picker-container">
+  <h3>Choose Your Postcard Design</h3>
+  <form method="post" action="{% url 'yourwish_create_order' %}">
+    {% csrf_token %}
+    <div class="card-options">
+      {% for card in cards %}
+      <label class="card-item">
+        <input type="radio" name="postcard_id" value="{{ card.id }}">
+        <img src="{{ card.image.url }}" alt="Postcard {{ card.id }}">
+      </label>
+      {% endfor %}
+    </div>
+
+    <div class="message-box">
+      <label class="form-label text-light">Write your message</label><br>
+      <textarea name="message" rows="3" placeholder="Write here..."></textarea>
+    </div>
+
+    <div class="mt-4">
+      <button type="submit" class="btn btn-add">Add</button>
+      <a href="{% url 'yourwish_create_order' %}?skip_card=1" class="btn btn-skip">Skip</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
