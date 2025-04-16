@@ -19,7 +19,7 @@ LANGUAGE_CODE = "en"  # Default language
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback_key')
 DEBUG = 'True'
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mybloom.onrender.com']
 ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
 
 INSTALLED_APPS = [
