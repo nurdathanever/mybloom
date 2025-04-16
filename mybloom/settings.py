@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 import dotenv
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -78,14 +79,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "mybloom.wsgi.application"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': os.environ.get('POSTGRES_PORT'),
-    }
+    'default': dj_database_url.config(
+        default='postgresql://mybloomuser:wanxiK48QoqreabmLTOjOUm6KryGCcw4@dpg-d0002uruibrs73brffmg-a.singapore-postgres.render.com/mybloomdb',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
