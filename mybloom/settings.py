@@ -162,3 +162,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://mybloom.onrender.com'
+]
