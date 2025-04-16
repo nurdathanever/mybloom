@@ -3,7 +3,7 @@
 <style>
   .card-picker-container {
     text-align: center;
-    color: #805252;
+    color: #b17878;
     padding: 80px 20px;
   }
   .card-options {
@@ -60,25 +60,26 @@
 
 <div class="card-picker-container">
   <h3>Choose Your Postcard Design</h3>
-  <form method="post" action="{% url 'yourwish_create_order' %}">
+  <form method="post" action="{% url 'yourwish_add_to_cart' %}">
     {% csrf_token %}
     <div class="card-options">
       {% for card in cards %}
       <label class="card-item">
         <input type="radio" name="postcard_id" value="{{ card.id }}">
         <img src="{{ card.image.url }}" alt="Postcard {{ card.id }}">
+        <div class="text-white mt-2">{{ card.name }}</div>
       </label>
       {% endfor %}
     </div>
 
     <div class="message-box">
-      <label class="form-label text-light">Write your message</label><br>
+      <label class="form-label text-white">Write your greeting message</label><br>
       <textarea name="message" rows="3" placeholder="Write here..."></textarea>
     </div>
 
-    <div class="mt-4">
+    <div class="d-flex justify-content-center gap-3 mt-4">
       <button type="submit" class="btn btn-add">Add</button>
-      <a href="{% url 'yourwish_create_order' %}?skip_card=1" class="btn btn-skip">Skip</a>
+      <a href="{% url 'yourwish_add_to_cart' %}?skip_card=1" class="btn btn-skip">Skip</a>
     </div>
   </form>
 </div>

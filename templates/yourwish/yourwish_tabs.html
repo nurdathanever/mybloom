@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 bg-dark text-light p-4 rounded shadow">
+        <ul class="nav nav-pills nav-fill mb-4" id="wishTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="flowers-tab" data-bs-toggle="tab" data-bs-target="#flowers"
+                        type="button" role="tab">Flowers
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="accessories-tab" data-bs-toggle="tab" data-bs-target="#accessories"
+                        type="button" role="tab">Accessories
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="postcard-tab" data-bs-toggle="tab" data-bs-target="#postcard" type="button"
+                        role="tab">Postcard
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="wishTabsContent">
+            <div class="tab-pane fade show active" id="flowers" role="tabpanel">
+                <form id="flowerForm" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        {% for flower in flowers %}
+                            <div class="col-md-2 mb-4">
+                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0 flower-card"
+                                     style="transition: all 0.3s ease;">
+                                    <img src="{{ flower.image.url }}" class="card-img-top img-fluid rounded-top"
+                                         style="max-height: 200px; object-fit: cover;" alt="{{ flower.name }}">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title">{{ flower.name }}</h6>
+                                        <div class="quantity-controls d-flex justify-content-center align-items-center mb-2">
+                                            <button type="button" class="btn btn-dark btn-sm minus-btn text-light"
+                                                    data-id="{{ flower.id }}">-
+                                            </button>
+                                            <span class="mx-2" id="qty-{{ flower.id }}">0</span>
+                                            <button type="button" class="btn btn-dark btn-sm plus-btn text-light"
+                                                    data-id="{{ flower.id }}">+
+                                            </button>
+                                        </div>
+                                        <input type="hidden" name="flowers" value="{{ flower.id }}"
+                                               id="input-{{ flower.id }}" disabled>
+                                        <p class="mb-0"><strong>{{ flower.price|floatformat }} тг</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="accessories" role="tabpanel">
+                <form id="accessoryForm" method="post">
+                    {% csrf_token %}
+                    <h4 class="text-white">Wrapping Papers</h4>
+                    <div class="row mb-4">
+                        {% for paper in papers %}
+                            <div class="col-md-3">
+                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0 accessory-card"
+                                     style="transition: all 0.3s ease;">
+                                    <input type="radio" name="wrapping_paper" value="{{ paper.id }}"
+                                           class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                    <img src="{{ paper.image.url }}" class="card-img-top img-fluid rounded-top"
+                                         style="max-height: 300px; object-fit: cover;" alt="{{ paper.name }}">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title">{{ paper.name }}</h6>
+                                        <p class="mb-0"><strong>{{ paper.price|floatformat }} тг</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <h4 class="text-white">Ribbons</h4>
+                    <div class="row mb-4">
+                        {% for ribbon in ribbons %}
+                            <div class="col-md-3">
+                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0 accessory-card"
+                                     style="transition: all 0.3s ease;">
+                                    <input type="radio" name="ribbon" value="{{ ribbon.id }}"
+                                           class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                    <img src="{{ ribbon.image.url }}" class="card-img-top img-fluid rounded-top"
+                                         style="max-height: 300px; object-fit: cover;" alt="{{ ribbon.name }}">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title">{{ ribbon.name }}</h6>
+                                        <p class="mb-0"><strong>{{ ribbon.price|floatformat }} тг</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="postcard" role="tabpanel">
+                <form id="postcardForm" method="post" action="{% url 'yourwish_bloomit' %}">
+                    {% csrf_token %}
+                    <div class="card-options row">
+                        <div class="col-md-2">
+                            <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0"
+                                 style="transition: all 0.3s ease;">
+                                <input type="radio" name="postcard_id" value=""
+                                       class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                <div class="card-body p-4 d-flex align-items-center justify-content-center"
+                                     style="height: 180px;">
+                                    <h6 class="card-title">No Postcard</h6>
+                                </div>
+                            </div>
+                        </div>
+                        {% for card in cards %}
+                            <div class="col-md-2">
+                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0"
+                                     style="transition: all 0.3s ease;">
+                                    <input type="radio" name="postcard_id" value="{{ card.id }}"
+                                           class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                    <img src="{{ card.image.url }}" alt="Postcard {{ card.id }}"
+                                         class="card-img-top img-fluid rounded-top"
+                                         style="max-height: 300px; object-fit: cover;" alt="{{ card.name }}">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title">{{ card.name }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label text-light">Write your message</label>
+                        <textarea name="message" class="form-control" rows="3" placeholder="Write here..."></textarea>
+                    </div>
+                    <div class="text-end mt-4">
+                        <input type="hidden" name="step" value="postcard">
+                        <input type="hidden" name="flowers_data" id="flowers_data_input">
+                        <button type="submit" class="btn btn-primary">Bloom it!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Track active tab from backend via sessionStorage
+        let currentTab = sessionStorage.getItem("activeTab") || "flowers-tab";
+        document.addEventListener("DOMContentLoaded", function () {
+            const tabTrigger = new bootstrap.Tab(document.getElementById(currentTab));
+            if (tabTrigger) tabTrigger.show();
+        });
+
+        const selectedFlowers = {};
+
+        document.querySelectorAll(".plus-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.dataset.id;
+                selectedFlowers[id] = (selectedFlowers[id] || 0) + 1;
+                document.getElementById("qty-" + id).textContent = selectedFlowers[id];
+                const input = document.getElementById("input-" + id);
+                input.name = "flowers_" + id;
+                input.value = id;
+                input.disabled = false;
+                saveToSession();
+            });
+        });
+
+        document.querySelectorAll(".minus-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.dataset.id;
+                selectedFlowers[id] = Math.max((selectedFlowers[id] || 0) - 1, 0);
+                document.getElementById("qty-" + id).textContent = selectedFlowers[id];
+                const input = document.getElementById("input-" + id);
+                input.disabled = selectedFlowers[id] <= 0;
+                saveToSession();
+            });
+        });
+
+        document.querySelectorAll("input[name='wrapping_paper'], input[name='ribbon'], input[name='postcard_id'], textarea[name='message']").forEach(input => {
+            input.addEventListener("change", saveToSession);
+            input.addEventListener("input", saveToSession);
+        });
+
+        function saveToSession() {
+            const data = {
+                flowers: selectedFlowers,
+                wrapping_paper: document.querySelector("input[name='wrapping_paper']:checked")?.value,
+                ribbon: document.querySelector("input[name='ribbon']:checked")?.value,
+                postcard_id: document.querySelector("input[name='postcard_id']:checked")?.value,
+                message: document.querySelector("textarea[name='message']")?.value,
+            };
+            sessionStorage.setItem("yourwishData", JSON.stringify(data));
+        }
+
+        // Inject data into final form
+        document.getElementById("postcardForm").addEventListener("submit", function (e) {
+            const data = sessionStorage.getItem("yourwishData");
+            if (data) {
+                document.getElementById("flowers_data_input").value = data;
+            }
+            Object.entries(selectedFlowers).forEach(([id, qty]) => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = `flowers_${id}`;
+                input.value = qty;
+                this.appendChild(input);
+            });
+
+            const wrapping = document.querySelector("input[name='wrapping_paper']:checked")?.value;
+            if (wrapping) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "wrapping_paper";
+                input.value = wrapping;
+                this.appendChild(input);
+            }
+
+            const ribbon = document.querySelector("input[name='ribbon']:checked")?.value;
+            if (ribbon) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "ribbon";
+                input.value = ribbon;
+                this.appendChild(input);
+            }
+        });
+    </script>
+    <style>
+        .flower-card:hover {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .accessory-card:hover,
+        .card-options .card:hover {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+    </style>
+{% endblock %}

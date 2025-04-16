@@ -1,55 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <style>
-        .result-container {
-            text-align: center;
-            padding: 100px 20px;
-            color: #996e6e;
-        }
-
-        .result-container img {
-            width: 240px;
-            height: auto;
-            border-radius: 20px;
-            margin-bottom: 30px;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-        }
-
-        .btn-yes, .btn-no {
-            width: 120px;
-            padding: 10px;
-            font-weight: bold;
-            border-radius: 8px;
-            border: none;
-        }
-
-        .btn-yes {
-            background-color: white;
-            color: #e94e77;
-            border: 2px solid #e94e77;
-        }
-
-        .btn-no {
-            background-color: #e94e77;
-            color: white;
-        }
-    </style>
-
-    <div class="result-container">
-        <h2>Your bouquet is ready! You want to make a change?</h2>
-        <img src="{% static 'img/sample_bouquet.jpeg' %}" alt="Sample Bouquet">
-        <div class="btn-group mt-4">
-            <form action="{% url 'yourwish_flowers' %}" method="get">
-                <button type="submit" class="btn btn-yes">YES</button>
-            </form>
-            <form action="{% url 'yourwish_postcard' %}" method="get">
-                <button type="submit" class="btn btn-no">No</button>
+    <div class="container text-center my-5">
+        <h2 class="mb-4">Your Custom Bouquet Preview</h2>
+        <img src="{{ image_url }}" alt="Generated Bouquet" class="img-fluid rounded shadow" style="max-width: 512px;">
+        <div class="mt-4">
+            <a href="{% url 'yourwish_tabs' %}" class="btn btn-outline-secondary">No, make changes</a>
+            <form method="post" action="{% url 'yourwish_confirm_bouquet' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Yes, add to cart</button>
             </form>
         </div>
     </div>

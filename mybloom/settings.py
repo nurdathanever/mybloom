@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "reviews",
     "delivery",
     "admin_panel",
-    "yourwish"
+    "yourwish",
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -79,11 +80,11 @@ WSGI_APPLICATION = "mybloom.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mybloomdb',
-        'USER': 'mybloomuser',
-        'PASSWORD': 'mybloompwd',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
 
@@ -163,3 +164,4 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')

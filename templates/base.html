@@ -28,20 +28,17 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated and user.role == "admin" %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'product_create' %}">Add Product</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'product_create' %}">Add Product</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "Home" %}</a></li>
                 {% endif %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'yourwish_flowers' %}">YourWish</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'yourwish_tabs' %}">YourWish</a></li>
 
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "My Account" %}</a>
-                    </li>
+                    <li class="nav-item"><a href="{% url 'view_cart' %}" class="nav-link">🛒 Cart</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "My Account" %}</a></li>
                     <li class="nav-item">
                         <form method="post" action="{% url 'account_logout' %}">
                             {% csrf_token %}
@@ -49,18 +46,13 @@
                         </form>
                     </li>
                 {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">{% trans "Login" %}</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">{% trans "Login" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a></li>
                 {% endif %}
 
                 <!-- Language Switcher -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button"
-                       data-bs-toggle="dropdown">
-                        {% trans "Language" %}
-                    </a>
+                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">{% trans "Language" %}</a>
                     <ul class="dropdown-menu">
                         {% for lang in languages %}
                             <li>

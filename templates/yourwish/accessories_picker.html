@@ -70,7 +70,7 @@
         }
     </style>
     <h2 class="text-center text-light mb-4">Choose Accessories</h2>
-    <form id="accessoryForm" method="post" action="{% url 'yourwish_blooming' %}">
+    <form id="accessoryForm" method="post" action="{% url 'yourwish_accessories' %}">
         {% csrf_token %}
 
         <h4 class="text-white">Wrapping Papers</h4>
@@ -82,10 +82,13 @@
                             <img src="{{ paper.image.url }}" class="accessory-image">
                             <div class="accessory-name-overlay">{{ paper.name }}</div>
                         </div>
-                        <div class="form-check mt-3">
-                            <input type="radio" name="wrapping_paper" value="{{ paper.id }}" class="form-check-input">
-                            <label class="form-check-label text-white">{{ paper.name }} - {{ paper.price }} KZT</label>
+                        <div class="quantity-controls mt-3">
+                            <button type="button" class="btn btn-dark btn-sm minus-btn" data-id="wrapping_{{ paper.id }}">-</button>
+                            <span id="qty-wrapping_{{ paper.id }}">0</span>
+                            <button type="button" class="btn btn-dark btn-sm plus-btn" data-id="wrapping_{{ paper.id }}">+</button>
                         </div>
+                        <input type="hidden" name="qty_wrapping_{{ paper.id }}" id="input-qty-wrapping_{{ paper.id }}" value="0">
+                        <p class="accessory-price">{{ paper.price }} KZT</p>
                     </div>
                 </div>
             {% endfor %}
@@ -100,11 +103,13 @@
                             <img src="{{ ribbon.image.url }}" class="accessory-image">
                             <div class="accessory-name-overlay">{{ ribbon.name }}</div>
                         </div>
-                        <div class="form-check mt-3">
-                            <input type="radio" name="ribbon" value="{{ ribbon.id }}" class="form-check-input">
-                            <label class="form-check-label text-white">{{ ribbon.name }} - {{ ribbon.price }}
-                                KZT</label>
+                        <div class="quantity-controls mt-3">
+                            <button type="button" class="btn btn-dark btn-sm minus-btn" data-id="ribbon_{{ ribbon.id }}">-</button>
+                            <span id="qty-ribbon_{{ ribbon.id }}">0</span>
+                            <button type="button" class="btn btn-dark btn-sm plus-btn" data-id="ribbon_{{ ribbon.id }}">+</button>
                         </div>
+                        <input type="hidden" name="qty_ribbon_{{ ribbon.id }}" id="input-qty-ribbon_{{ ribbon.id }}" value="0">
+                        <p class="accessory-price">{{ ribbon.price }} KZT</p>
                     </div>
                 </div>
             {% endfor %}
@@ -114,4 +119,27 @@
             <button type="submit" class="btn btn-primary">Bloom It</button>
         </div>
     </form>
+    <script>
+        const quantities = {};
+
+        document.querySelectorAll('.plus-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                quantities[id] = (quantities[id] || 0) + 1;
+                document.getElementById('qty-' + id).innerText = quantities[id];
+                document.getElementById('input-qty-' + id).value = quantities[id];
+            });
+        });
+
+        document.querySelectorAll('.minus-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                if (quantities[id] > 0) {
+                    quantities[id]--;
+                    document.getElementById('qty-' + id).innerText = quantities[id];
+                    document.getElementById('input-qty-' + id).value = quantities[id];
+                }
+            });
+        });
+    </script>
 {% endblock %}

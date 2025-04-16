@@ -1,122 +1,191 @@
+import base64
+import os
+from io import BytesIO
+from datetime import datetime
+from PIL import Image
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from products.models import Product
-from orders.models import Order, OrderItem
+from cart.models import CartItem
+from django.utils import timezone
+from yourwish.models import CustomBouquet, CustomBouquetFlower, CustomBouquetAccessory
+from openai import OpenAI
+from django.conf import settings
+import json
 
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-def flower_picker(request):
-    flowers = Product.objects.filter(category='flower', stock__gt=0)
-    return render(request, 'yourwish/flower_picker.html', {'flowers': flowers})
-
-def accessories_picker(request):
-    if request.method == "POST":
-        selected_flower_ids = request.POST.getlist('flowers')
-        request.session['yourwish_flowers'] = selected_flower_ids
-    papers = Product.objects.filter(category='wrapping_paper')
-    ribbons = Product.objects.filter(category='ribbon')
-    return render(request, 'yourwish/accessories_picker.html', {'papers': papers, 'ribbons': ribbons})
-
-def blooming_screen(request):
-    if request.method == "POST":
-        selected_papers = request.POST.get('wrapping_paper')
-        selected_ribbons = request.POST.get('ribbon')
-        request.session['yourwish_paper'] = selected_papers
-        request.session['yourwish_ribbon'] = selected_ribbons
-    return render(request, 'yourwish/blooming.html')
-
-def bloom_result(request):
-    context = {
-        "bouquet_image": "/static/img/sample_bouquet.jpeg"  # placeholder for now
-    }
-    return render(request, "yourwish/bloom_result.html", context)
-
-def postcard_picker(request):
-    postcards = Product.objects.filter(category='postcard')
-    return render(request, 'yourwish/postcard_picker.html', {'cards': postcards})
 
 @login_required
-def create_order(request):
+def yourwish_tabs(request):
+    step = request.POST.get("step", "flowers")
     selected_flowers = request.session.get("selected_flowers", {})
     wrapping_paper_id = request.session.get("wrapping_paper")
     ribbon_id = request.session.get("ribbon")
-    bouquet_image = "ai_bouquets/sample_bouquet.jpeg"  # relative path for ImageField
+    message = request.session.get("message", "")
+    postcard_id = request.session.get("postcard_id")
 
-    # Handle greeting card data
-    postcard = None
-    message = ""
     if request.method == "POST":
-        postcard_id = request.POST.get("postcard_id")
-        message = request.POST.get("message", "")
-        postcard = Product.objects.filter(id=postcard_id, category="postcard").first()
-    elif request.GET.get("skip_card"):
-        postcard = None
-        message = ""
-    else:
-        return redirect("yourwish_postcard")
+        current_step = request.POST.get("step")
+        if current_step == "flowers":
+            flower_data = {}
+            for key in request.POST:
+                if key.startswith("flowers_"):
+                    flower_id = key.replace("flowers_", "")
+                    try:
+                        quantity = int(request.POST[key])
+                        if quantity > 0:
+                            flower_data[flower_id] = quantity
+                    except (ValueError, TypeError):
+                        continue
+            request.session["selected_flowers"] = flower_data
+            step = "accessories"
 
-    # Create the order
-    order = Order.objects.create(
-        user=request.user,
-        address="Custom Bouquet",  # You can make this dynamic later
-        phone="000000000",
-        total_price=0,
-        status="pending",  # matches your model's STATUS_CHOICES
-        ai_bouquet_image=bouquet_image,
-        greeting_message=message
+        elif current_step == "accessories":
+            request.session["wrapping_paper"] = request.POST.get("wrapping_paper")
+            request.session["ribbon"] = request.POST.get("ribbon")
+            step = "postcard"
+
+        elif current_step == "postcard":
+            request.session["postcard_id"] = request.POST.get("postcard_id")
+            request.session["message"] = request.POST.get("message", "")
+            return redirect("yourwish_bloomit")
+
+    flowers = Product.objects.filter(category='flower', stock__gt=0)
+    papers = Product.objects.filter(category='wrapping_paper')
+    ribbons = Product.objects.filter(category='ribbon')
+    postcards = Product.objects.filter(category='postcard')
+
+    return render(request, "yourwish/yourwish_tabs.html", {
+        "step": step,
+        "flowers": flowers,
+        "papers": papers,
+        "ribbons": ribbons,
+        "cards": postcards,
+        "selected_flowers": selected_flowers,
+        "wrapping_paper_id": wrapping_paper_id,
+        "ribbon_id": ribbon_id,
+        "message": message,
+        "postcard_id": postcard_id
+    })
+
+
+@login_required
+def yourwish_bloomit(request):
+    flowers_data_str = request.POST.get("flowers_data", "{}")
+    flowers_data = json.loads(flowers_data_str)
+
+    selected_flowers = flowers_data.get("flowers", {})
+    wrapping_paper_id = flowers_data.get("wrapping_paper")
+    ribbon_id = flowers_data.get("ribbon")
+
+    wrapping = Product.objects.filter(id=wrapping_paper_id, category="wrapping_paper").first()
+    ribbon = Product.objects.filter(id=ribbon_id, category="ribbon").first()
+
+    flower_parts = []
+    for flower_id, qty in selected_flowers.items():
+        flower = Product.objects.filter(id=flower_id).first()
+        if flower and qty > 0:
+            flower_parts.append(f"exactly {qty} {flower.name} stems")
+    flower_str = ", ".join(flower_parts)
+
+    prompt = (
+        f"A realistic close-up of a minimalistic bouquet with {flower_str}, elegantly arranged and rich in color "
+        f"and detail. Wrapped in {wrapping.name} wrapping paper and tied with a {ribbon.name} ribbon bow. Soft natural daylight, "
+        f"gentle shadows, neutral blurred background. Vertical shot, shallow depth of field, "
+        f"magazine-style floral photography."
     )
+    print(prompt)
 
+    response = client.images.generate(model="dall-e-3", prompt=prompt,
+                                      n=1,
+                                      size="1024x1024",
+                                      response_format="b64_json")
+    img_data = base64.b64decode(response.data[0].b64_json)
+    img = Image.open(BytesIO(img_data))
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    img_filename = f"media/ai_bouquets/preview_{request.user.id}_{timestamp}.jpeg"
+    os.makedirs(os.path.dirname(img_filename), exist_ok=True)
+    img.save(img_filename, format="JPEG")
+
+    request.session["ai_bouquet_image"] = f"ai_bouquets/preview_{request.user.id}_{timestamp}.jpeg"
+
+    return render(request, "yourwish/bloom_result.html", {
+        "image_url": f"/media/ai_bouquets/preview_{request.user.id}_{timestamp}.jpeg"
+    })
+
+
+@login_required
+def yourwish_confirm_bouquet(request):
+    selected_flowers = request.session.get("selected_flowers", {})
+    wrapping_paper_id = request.session.get("wrapping_paper")
+    ribbon_id = request.session.get("ribbon")
+    message = request.session.get("message", "")
+    postcard_id = request.session.get("postcard_id")
+    bouquet_image = request.session.get("ai_bouquet_image", "ai_bouquets/sample_bouquet.jpeg")
+
+    bouquet_description = "Custom bouquet created by AI"
     total_price = 0
 
-    # Add selected flowers
-    for flower_id, quantity in selected_flowers.items():
+    custom_bouquet = CustomBouquet.objects.create(
+        user=request.user,
+        image=bouquet_image,
+        description=bouquet_description,
+        greeting_message=message,
+        postcard=Product.objects.filter(id=postcard_id, category='postcard').first() if postcard_id else None,
+        total_price=0
+    )
+
+    for flower_id, qty in selected_flowers.items():
         try:
-            flower = Product.objects.get(id=flower_id)
-            OrderItem.objects.create(
-                order=order,
+            flower = Product.objects.get(id=flower_id, category='flower')
+            CustomBouquetFlower.objects.create(
+                bouquet=custom_bouquet,
                 product=flower,
-                quantity=int(quantity),
-                price=flower.price
+                quantity=int(qty)
             )
-            total_price += flower.price * int(quantity)
+            total_price += flower.price * int(qty)
         except Product.DoesNotExist:
             continue
 
-    # Add wrapping paper
     if wrapping_paper_id:
         try:
-            paper = Product.objects.get(id=wrapping_paper_id)
-            OrderItem.objects.create(order=order, product=paper, quantity=1, price=paper.price)
+            paper = Product.objects.get(id=wrapping_paper_id, category='wrapping_paper')
+            CustomBouquetAccessory.objects.create(
+                bouquet=custom_bouquet,
+                product=paper,
+                accessory_type="wrapping_paper"
+            )
             total_price += paper.price
         except Product.DoesNotExist:
             pass
 
-    # Add ribbon
     if ribbon_id:
         try:
-            ribbon = Product.objects.get(id=ribbon_id)
-            OrderItem.objects.create(order=order, product=ribbon, quantity=1, price=ribbon.price)
+            ribbon = Product.objects.get(id=ribbon_id, category='ribbon')
+            CustomBouquetAccessory.objects.create(
+                bouquet=custom_bouquet,
+                product=ribbon,
+                accessory_type="ribbon"
+            )
             total_price += ribbon.price
         except Product.DoesNotExist:
             pass
 
-    # Add postcard (if selected)
-    if postcard:
-        OrderItem.objects.create(
-            order=order,
-            product=postcard,
-            quantity=1,
-            price=postcard.price,
-            custom_message=message
-        )
-        total_price += postcard.price
+    if custom_bouquet.postcard:
+        total_price += custom_bouquet.postcard.price
 
-    # Finalize order price
-    order.total_price = total_price
-    order.save()
+    custom_bouquet.total_price = total_price
+    custom_bouquet.save()
 
-    # Clear session
-    request.session.pop("selected_flowers", None)
-    request.session.pop("wrapping_paper", None)
-    request.session.pop("ribbon", None)
+    CartItem.objects.create(
+        user=request.user,
+        custom_bouquet=custom_bouquet,
+        quantity=1,
+        added_at=timezone.now()
+    )
 
-    return render(request, "yourwish/order_success.html", {"order": order})
+    for key in ["selected_flowers", "wrapping_paper", "ribbon", "message", "postcard_id"]:
+        request.session.pop(key, None)
+
+    return redirect("view_cart")

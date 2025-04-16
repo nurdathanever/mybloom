@@ -70,7 +70,7 @@
     </style>
 
     <h2 class="text-center text-light">Choose Flowers</h2>
-    <form id="flowerForm" method="post" action="{% url 'yourwish_accessories' %}">
+    <form id="flowerForm" method="post" action="{% url 'yourwish_flowers' %}">
         {% csrf_token %}
         <div class="row">
             {% for flower in flowers %}
@@ -84,7 +84,7 @@
                         <span class="mx-2 text-white" id="qty-{{ flower.id }}">0</span>
                         <button type="button" class="btn btn-dark btn-sm plus-btn" data-id="{{ flower.id }}">+</button>
                     </div>
-                    <input type="hidden" name="flowers" value="{{ flower.id }}" id="input-{{ flower.id }}" disabled>
+                    <input type="hidden" name="qty_{{ flower.id }}" id="input-qty-{{ flower.id }}" value="0">
                     <p class="flower-price">{{ flower.price }} KZT</p>
                 </div>
             {% endfor %}
@@ -119,7 +119,7 @@
                 const id = btn.getAttribute('data-id');
                 quantities[id] = (quantities[id] || 0) + 1;
                 document.getElementById('qty-' + id).innerText = quantities[id];
-                document.getElementById('input-' + id).disabled = false;
+                document.getElementById('input-qty-' + id).value = quantities[id];
                 updateTotal();
             });
         });
@@ -130,9 +130,7 @@
                 if (quantities[id] > 0) {
                     quantities[id] -= 1;
                     document.getElementById('qty-' + id).innerText = quantities[id];
-                    if (quantities[id] === 0) {
-                        document.getElementById('input-' + id).disabled = true;
-                    }
+                    document.getElementById('input-qty-' + id).value = quantities[id];
                     updateTotal();
                 }
             });
