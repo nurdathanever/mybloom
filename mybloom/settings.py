@@ -20,7 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback_key')
 DEBUG = 'True'
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mybloom.onrender.com']
-ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
+# ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -63,9 +64,10 @@ ROOT_URLCONF = "mybloom.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'templates'), os.path.join(BASE_DIR, 'templates', 'allauth')],
+        "DIRS": [os.path.join(BASE_DIR, 'templates'), ], # os.path.join(BASE_DIR, 'templates', 'allauth')
         "APP_DIRS": True,
         "OPTIONS": {
+            "debug": True,
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",

@@ -1,3 +1,4 @@
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,89 +7,98 @@
     <title>{% block title %}MyBloom{% endblock %}</title>
 
     <!-- Bootstrap CSS -->
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
 </head>
-<body class="bg-light">
-<!-- Navbar -->
-{% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
-{% get_available_languages as LANGUAGES %}
-{% get_language_info_list for LANGUAGES as languages %}
+<body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">MyBloom</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+<section class="hero">
+    <header>
+        <h1 class="logo">My Bloom</h1>
+        <nav>
+            <ul>
                 {% if user.is_authenticated and user.role == "admin" %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'product_create' %}">Add Product</a></li>
+                    <li><a href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
+                    <li><a href="{% url 'product_create' %}">{% trans "Add Product" %}</a></li>
                 {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "Home" %}</a></li>
+                    <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
                 {% endif %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'yourwish_tabs' %}">YourWish</a></li>
-
-                {% if user.is_authenticated %}
-                    <li class="nav-item"><a href="{% url 'view_cart' %}" class="nav-link">🛒 Cart</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "My Account" %}</a></li>
-                    <li class="nav-item">
-                        <form method="post" action="{% url 'account_logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm">{% trans "Logout" %}</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">{% trans "Login" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a></li>
-                {% endif %}
-
-                <!-- Language Switcher -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">{% trans "Language" %}</a>
-                    <ul class="dropdown-menu">
-                        {% for lang in languages %}
-                            <li>
-                                <form action="{% url 'set_language' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="language" value="{{ lang.code }}">
-                                    <button type="submit"
-                                            class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
-                                        {{ lang.name_local }}
-                                    </button>
-                                </form>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
+                <li><a href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
+                <li><a href="{% url 'yourwish_tabs' %}">{% trans "YourWish" %}</a></li>
             </ul>
+        </nav>
+        <div class="icons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+                <a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i></a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i
+                        class="fa-solid fa-right-from-bracket"></i></a>
+            {% else %}
+                <a href="{% url 'account_login' %}"><i class="fa fa-user"></i></a>
+                <a href="{% url 'account_signup' %}"><i class="fa fa-user-plus"></i></a>
+            {% endif %}
+            <div class="dropdown d-inline">
+                <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
+                        class="fa-solid fa-language"></i></a>
+                <ul class="dropdown-menu">
+                    {% for lang in languages %}
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="language" value="{{ lang.code }}">
+                                <button type="submit"
+                                        class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
+                                    {{ lang.name_local }}
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="bg-dark text-white text-center p-3 mt-5">
+        <p>&copy; 2025 MyBloom. All rights reserved.</p>
+        <div>
+            <a href="#" class="text-light mx-2">Facebook</a>
+            <a href="#" class="text-light mx-2">Instagram</a>
+            <a href="#" class="text-light mx-2">Twitter</a>
+        </div>
+    </footer>
+
+</section>
+
+<!-- Logout Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: black">Are you sure you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'account_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
         </div>
     </div>
-</nav>
-
-<!-- Main Content -->
-<div class="container my-4">
-    {% block content %}{% endblock %}
 </div>
 
-<!-- Footer -->
-<footer class="bg-dark text-white text-center p-3 mt-5">
-    <p>&copy; 2025 MyBloom. All rights reserved.</p>
-    <div>
-        <a href="#" class="text-light mx-2">Facebook</a>
-        <a href="#" class="text-light mx-2">Instagram</a>
-        <a href="#" class="text-light mx-2">Twitter</a>
-    </div>
-</footer>
-
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% block scripts %}{% endblock %}
 </body>

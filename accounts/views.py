@@ -20,9 +20,6 @@ def signup_view(request):
         form = CustomUserCreationForm()
     return render(request, "accounts/signup.html", {"form": form})
 
-def logout_view(request):
-    logout(request)
-    return render(request, "accounts/logout.html")
 
 @login_required
 def profile_view(request):
@@ -56,6 +53,7 @@ def change_password(request):
 
 
 class CustomLoginView(LoginView):
+    template_name = "accounts/login.html"
     """Custom login view to redirect users based on their role after login."""
     def get_success_url(self):
         user = self.request.user
@@ -63,3 +61,12 @@ class CustomLoginView(LoginView):
             if user.role == "admin":
                 return resolve_url("admin_dashboard")  # Admins → admin dashboard
         return resolve_url("home")  # Users → main page
+
+    def get_template_names(self):
+        # Print the template path being used
+        print(f"Template used: {self.template_name}")
+        return [self.template_name]
+
+    def dispatch(self, request, *args, **kwargs):
+        print("CustomLoginView is being called!")  # Debug log
+        return super().dispatch(request, *args, **kwargs)
