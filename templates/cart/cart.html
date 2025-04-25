@@ -1,40 +1,181 @@
 {% extends 'base.html' %}
 {% block title %}Shopping Cart{% endblock %}
 {% block content %}
-<div class="container my-5">
-    <h2 class="text-center mb-4">Shopping Cart</h2>
-    {% if cart_items %}
-    <ul class="list-group mb-3">
-        {% for cart_item in cart_items %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                {% if cart_item.image %}
-                    <img src="{{ cart_item.image }}" width="300" height="300" class="me-3 rounded">
-                {% endif %}
-                <strong>{{ cart_item.item.custom_bouquet.description }}</strong><br>
-                Added: {{ cart_item.date|date:"Y-m-d H:i" }}
-                <ul class="mt-2 mb-0">
-                    {% for flower in cart_item.flowers %}
-                        <li>{{ flower.product.name }} x {{ flower.quantity }}</li>
-                    {% endfor %}
-                    {% for acc in cart_item.accessories %}
-                        <li>{{ acc.product.name }} ({{ acc.accessory_type|capfirst }})</li>
-                    {% endfor %}
-                </ul>
+    <style>
+        .btn-outline-dark {
+            border: 1px solid #333;
+            color: #333;
+        }
+
+        .btn-outline-dark:hover {
+            background-color: #333;
+            color: #EB889E;
+        }
+
+        .btn-danger {
+            background-color: #EB889E;
+            border-color: #EB889E;
+        }
+
+        .btn-danger:hover {
+            background-color: #EB889E;
+            border-color: #EB889E;
+        }
+
+        td {
+            vertical-align: middle;
+        }
+
+        .cart-bouquet-info {
+            text-align: left;
+        }
+    </style>
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Shopping Cart</h2>
+        {% if cart_items %}
+            <table class="table table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th>Bouquet</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-end">Total Price</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for cart_item in cart_items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if cart_item.item.product %}
+                                    <img src="{{ cart_item.item.product.image.url }}" width="150" height="150"
+                                         class="me-3 rounded" alt="{{ cart_item.item.product.name }}">
+                                    <div class="cart-bouquet-info">
+                                        <h5>{{ cart_item.item.product.name }}</h5>
+                                        <p class="mb-1"><strong>Flowers:</strong>
+                                            {% for flower in cart_item.item.product.flower_ingredients.all %}
+                                                {{ flower.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                {% elif cart_item.item.custom_bouquet %}
+                                    <img src="{{ cart_item.image }}" width="150" height="150" class="me-3 rounded"
+                                         alt="Custom Bouquet">
+                                    <div class="cart-bouquet-info">
+                                        <h5>{{ cart_item.item.custom_bouquet.description }}</h5>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <button type="button" class="btn btn-outline-dark btn-sm minus-btn"
+                                        data-id="{{ cart_item.item.id }}">-
+                                </button>
+                                <span id="qty-{{ cart_item.item.id }}" class="mx-2">{{ cart_item.quantity }}</span>
+                                <button type="button" class="btn btn-outline-dark btn-sm plus-btn"
+                                        data-id="{{ cart_item.item.id }}">+
+                                </button>
+                            </div>
+                            {% if cart_item.item.product %}
+                                <span id="price-{{ cart_item.item.id }}" data-price="{{ cart_item.item.product.price }}" style="display:none;"></span>
+                            {% elif cart_item.item.custom_bouquet %}
+                                <span id="price-{{ cart_item.item.id }}" data-price="{{ cart_item.item.custom_bouquet.total_price }}" style="display:none;"></span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end"><strong id="total-{{ cart_item.item.id }}">{{ cart_item.item.total_price }} KZT</strong></td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-danger remove-btn"
+                                    data-id="{{ cart_item.item.id }}">Remove
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <h5 class="text-end">Total: <strong id="cart-total">{{ total }} KZT</strong></h5>
+            <div class="text-end">
+                <a href="#" class="btn btn-success btn-lg">Checkout</a>
             </div>
-            <div>
-                {{ cart_item.item.total_price }} KZT
-                <a href="{% url 'remove_from_cart' cart_item.item.id %}" class="btn btn-sm btn-danger ms-2">Remove</a>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-    <h5 class="text-end">Total: <strong>{{ total }} KZT</strong></h5>
-    <div class="text-end">
-        <a href="#" class="btn btn-success btn-lg">Checkout</a>
+        {% else %}
+            <div class="alert alert-info text-center">Your cart is empty.</div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info text-center">Your cart is empty.</div>
-    {% endif %}
-</div>
+
+    <div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeModalLabel">Confirm Removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="color:black;">Are you sure you want to remove this item from the cart?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="#" id="confirmRemoveBtn" class="btn btn-danger">Remove</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.plus-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const qtyElement = document.getElementById('qty-' + id);
+                let qty = parseInt(qtyElement.innerText) || 1;  // Default to 1
+                qty++;
+                qtyElement.innerText = qty;
+                updateTotalPrice(id, qty);
+            });
+        });
+
+        document.querySelectorAll('.minus-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const qtyElement = document.getElementById('qty-' + id);
+                let qty = parseInt(qtyElement.innerText) || 1;  // Default to 1
+                if (qty > 1) {
+                    qty--;
+                    qtyElement.innerText = qty;
+                    updateTotalPrice(id, qty);
+                }
+            });
+        });
+
+        // Update total price
+        function updateTotalPrice(id, qty) {
+            const priceElement = document.getElementById('price-' + id);
+            if (!priceElement) {
+                console.error('Price element not found for id:', id);
+                return;
+            }
+            const pricePerUnit = parseFloat(priceElement.getAttribute('data-price'));
+            if (isNaN(pricePerUnit)) {
+                console.error('Invalid price for id:', id);
+                return;
+            }
+            const totalElement = document.getElementById('total-' + id);
+            if (!totalElement) {
+                console.error('Total element not found for id:', id);
+                return;
+            }
+            totalElement.innerText = (pricePerUnit * qty).toFixed(2) + ' KZT';
+            updateCartTotal();
+        }
+
+        function updateCartTotal() {
+            let total = 0;
+            document.querySelectorAll('td strong[id^="total-"]').forEach(el => {
+                const priceText = el.innerText.replace(' KZT', '');
+                total += parseFloat(priceText) || 0;
+            });
+            const totalCartElement = document.getElementById('cart-total');
+            if (totalCartElement) {
+                totalCartElement.innerText = total.toFixed(2) + ' KZT';
+            }
+        }
+    </script>
 {% endblock %}

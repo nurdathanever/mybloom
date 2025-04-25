@@ -35,17 +35,17 @@
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ flower.name }}</h6>
                                         <div class="quantity-controls d-flex justify-content-center align-items-center mb-2">
-                                            <button type="button" class="btn btn-dark btn-sm minus-btn text-light"
+                                            <button type="button" class="btn btn-outline-light btn-sm minus-btn"
                                                     data-id="{{ flower.id }}">-
                                             </button>
                                             <span class="mx-2" id="qty-{{ flower.id }}">0</span>
-                                            <button type="button" class="btn btn-dark btn-sm plus-btn text-light"
+                                            <button type="button" class="btn btn-outline-light btn-sm plus-btn"
                                                     data-id="{{ flower.id }}">+
                                             </button>
                                         </div>
                                         <input type="hidden" name="flowers" value="{{ flower.id }}"
                                                id="input-{{ flower.id }}" disabled>
-                                        <p class="mb-0"><strong>{{ flower.price|floatformat }} тг</strong></p>
+                                        <p class="flower-price" id="price-{{ flower.id }}" data-price="{{ flower.price|floatformat }}">{{ flower.price|floatformat }} тг</p>
                                     </div>
                                 </div>
                             </div>
@@ -140,6 +140,9 @@
                 </form>
             </div>
         </div>
+        <div class="mt-5 text-end text-white">
+            <h4>Estimated Price: <span id="estimated-price">0</span> тг</h4>
+        </div>
     </div>
 
     <script>
@@ -161,6 +164,9 @@
                 input.name = "flowers_" + id;
                 input.value = id;
                 input.disabled = false;
+                const pricePerItem = parseFloat(btn.closest('.flower-card').querySelector('.flower-price').dataset.price);
+                document.getElementById("price-" + id).innerText = (selectedFlowers[id] * pricePerItem).toFixed(0) + " тг";
+                updateEstimatedPrice();
                 saveToSession();
             });
         });
@@ -172,6 +178,9 @@
                 document.getElementById("qty-" + id).textContent = selectedFlowers[id];
                 const input = document.getElementById("input-" + id);
                 input.disabled = selectedFlowers[id] <= 0;
+                const pricePerItem = parseFloat(btn.closest('.flower-card').querySelector('.flower-price').dataset.price);
+                document.getElementById("price-" + id).innerText = (selectedFlowers[id] * pricePerItem).toFixed(0) + " тг";
+                updateEstimatedPrice();
                 saveToSession();
             });
         });
@@ -180,6 +189,26 @@
             input.addEventListener("change", saveToSession);
             input.addEventListener("input", saveToSession);
         });
+
+        document.querySelectorAll("input[name='wrapping_paper'], input[name='ribbon']").forEach(input => {
+            input.addEventListener("change", updateEstimatedPrice);
+        });
+
+        function updateEstimatedPrice() {
+            let total = 0;
+            Object.entries(selectedFlowers).forEach(([id, qty]) => {
+                const pricePerItem = parseFloat(document.querySelector(`#price-${id}`).dataset.price);
+                total += qty * pricePerItem;
+            });
+
+            const wrappingPrice = parseFloat(document.querySelector("input[name='wrapping_paper']:checked")?.closest('.card').querySelector('strong')?.innerText || 0);
+            const ribbonPrice = parseFloat(document.querySelector("input[name='ribbon']:checked")?.closest('.card').querySelector('strong')?.innerText || 0);
+
+            total += isNaN(wrappingPrice) ? 0 : wrappingPrice;
+            total += isNaN(ribbonPrice) ? 0 : ribbonPrice;
+
+            document.getElementById("estimated-price").innerText = total.toFixed(0);
+        }
 
         function saveToSession() {
             const data = {

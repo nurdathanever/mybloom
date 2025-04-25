@@ -22,3 +22,27 @@ class ProductForm(forms.ModelForm):
             self.fields.pop("seasonality", None)
             self.fields.pop("style", None)
             self.fields.pop("flower_ingredients", None)
+
+
+class ProductFilterForm(forms.Form):
+    flower_ingredients = forms.MultipleChoiceField(
+        choices=[(f.name, f.name) for f in Product.objects.filter(category='flower')],
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Flower Type"
+    )
+    size = forms.MultipleChoiceField(
+        choices=[(s, s) for s in Product.objects.exclude(size__isnull=True).values_list('size', flat=True).distinct()],
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    seasonality = forms.MultipleChoiceField(
+        choices=[(s, s) for s in Product.objects.exclude(seasonality__isnull=True).values_list('seasonality', flat=True).distinct()],
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    style = forms.MultipleChoiceField(
+        choices=[(st, st) for st in Product.objects.exclude(style__isnull=True).values_list('style', flat=True).distinct()],
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )

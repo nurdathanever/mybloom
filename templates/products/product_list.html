@@ -1,134 +1,156 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% block title %}Product Catalog{% endblock %}
-{% block content %}
+{% load static i18n %}
 
-    <div class="container my-5">
-        <div class="text-center mb-5">
-            <h2 class="display-4 fw-bold">Our Collection</h2>
+{% block title %}Product Catalog{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'css/product_list_style.css' %}">
+
+    <div class="overlay" onclick="closeFilter()"></div>
+
+    <section class="collection">
+        <div class="filter-container">
+            <div class="filter-header" onclick="toggleFilter()">
+                <i class="fa-solid fa-filter"></i> Filter Bouquets
+            </div>
+
+            <div class="filter-content" id="filterContent">
+                <div class="filter-sections-wrapper">
+                    <div class="filter-section active" onclick="toggleFilterSection('flower_ingredients', event)">Flower
+                        Type
+                    </div>
+                    <div class="filter-section" onclick="toggleFilterSection('bouquet-size', event)">Bouquet Size</div>
+                    <div class="filter-section" onclick="toggleFilterSection('price-range', event)">Price Range</div>
+                    <div class="filter-section" onclick="toggleFilterSection('seasonality', event)">Seasonality</div>
+                    <div class="filter-section" onclick="toggleFilterSection('bouquet-style', event)">Bouquet Style
+                    </div>
+                    <div class="filter-section" onclick="toggleFilterSection('sort-by', event)">Sort By</div>
+                </div>
+
+                <div class="filter-options-container">
+                    <div class="filter-options grid-layout" id="flower_ingredients">
+                        {% for flower in all_flower_types %}
+                            <input type="checkbox" id="{{ flower.name|slugify }}" name="flower_ingredients"
+                                   value="{{ flower.name }}">
+                            <label for="{{ flower.name|slugify }}">{{ flower.name }}</label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="filter-options grid-layout" id="bouquet-size">
+                        <input type="checkbox" id="small-size" name="size" value="S"><label
+                            for="small-size">Small</label>
+                        <input type="checkbox" id="medium-size" name="size" value="M"><label
+                            for="medium-size">Medium</label>
+                        <input type="checkbox" id="large-size" name="size" value="L"><label
+                            for="large-size">Large</label>
+                    </div>
+
+                    <div class="filter-options grid-layout" id="price-range">
+                        <input type="checkbox" id="low-price" name="price_range" value="low"><label
+                            for="low-price">Low</label>
+                        <input type="checkbox" id="medium-price" name="price_range" value="medium"><label
+                            for="medium-price">Medium</label>
+                        <input type="checkbox" id="high-price" name="price_range" value="high"><label for="high-price">High</label>
+                    </div>
+
+                    <div class="filter-options grid-layout" id="seasonality">
+                        <input type="checkbox" id="spring" name="seasonality" value="spring"><label
+                            for="spring">Spring</label>
+                        <input type="checkbox" id="summer" name="seasonality" value="summer"><label
+                            for="summer">Summer</label>
+                        <input type="checkbox" id="autumn" name="seasonality" value="autumn"><label
+                            for="autumn">Autumn</label>
+                        <input type="checkbox" id="winter" name="seasonality" value="winter"><label
+                            for="winter">Winter</label>
+                    </div>
+
+                    <div class="filter-options grid-layout" id="bouquet-style">
+                        <input type="checkbox" id="classic" name="style" value="classic"><label
+                            for="classic">Classic</label>
+                        <input type="checkbox" id="minimalistic" name="style" value="minimalistic"><label
+                            for="minimalistic">Minimalistic</label>
+                        <input type="checkbox" id="exotic" name="style" value="exotic"><label
+                            for="exotic">Exotic</label>
+                        <input type="checkbox" id="lush" name="style" value="lush"><label for="lush">Lush</label>
+                        <input type="checkbox" id="mono-bouquet" name="style" value="mono"><label for="mono-bouquet">Mono-Bouquet</label>
+                    </div>
+
+                    <div class="filter-options grid-layout" id="sort-by">
+                        <input type="checkbox" id="top-rated" name="sort" value="rating"><label for="top-rated">Top
+                        Rated</label>
+                        <input type="checkbox" id="new-arrivals" name="sort" value="arrival"><label for="new-arrivals">New
+                        Arrivals</label>
+                        <input type="checkbox" id="on-sale" name="sort" value="sale"><label for="on-sale">On
+                        Sale</label>
+                        <input type="checkbox" id="bestselling" name="sort" value="bestselling"><label
+                            for="bestselling">Bestselling</label>
+                    </div>
+                </div>
+
+                <button id="apply-filters" class="apply-button" onclick="applyFilters()">Apply</button>
+            </div>
         </div>
 
-        <form method="get" class="mb-4">
-            <div class="card p-4 shadow-sm">
-                <h5 class="mb-3 fw-bold">Choose your preferences to find the perfect bouquet!</h5>
-                <div class="row">
-                    <div class="col-md-2">
-                        <label>Flower Type</label>
-                        <select name="flower_type" class="form-select">
-                            <option value="">All</option>
-                            {% for ft in flower_types %}
-                                <option value="{{ ft }}"
-                                        {% if request.GET.flower_type == ft %}selected{% endif %}>{{ ft }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label>Bouquet Size</label>
-                        <select class="form-select" name="size">
-                            <option value="">All</option>
-                            <option value="S" {% if request.GET.size == "S" %}selected{% endif %}>Small</option>
-                            <option value="M" {% if request.GET.size == "M" %}selected{% endif %}>Medium</option>
-                            <option value="L" {% if request.GET.size == "L" %}selected{% endif %}>Large</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label>Seasonality</label>
-                        <select class="form-select" name="seasonality">
-                            <option value="">All</option>
-                            <option value="spring" {% if request.GET.seasonality == "spring" %}selected{% endif %}>
-                                Spring
-                            </option>
-                            <option value="summer" {% if request.GET.seasonality == "summer" %}selected{% endif %}>
-                                Summer
-                            </option>
-                            <option value="autumn" {% if request.GET.seasonality == "autumn" %}selected{% endif %}>
-                                Autumn
-                            </option>
-                            <option value="winter" {% if request.GET.seasonality == "winter" %}selected{% endif %}>
-                                Winter
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label>Style</label>
-                        <select class="form-select" name="style">
-                            <option value="">All</option>
-                            <option value="classic" {% if request.GET.style == "classic" %}selected{% endif %}>Classic
-                            </option>
-                            <option value="minimalistic"
-                                    {% if request.GET.style == "minimalistic" %}selected{% endif %}>Minimalistic
-                            </option>
-                            <option value="exotic" {% if request.GET.style == "exotic" %}selected{% endif %}>Exotic
-                            </option>
-                            <option value="lush" {% if request.GET.style == "lush" %}selected{% endif %}>Lush</option>
-                            <option value="mono" {% if request.GET.style == "mono" %}selected{% endif %}>Mono</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label>Min Price</label>
-                        <input type="number" name="min_price" class="form-control" value="{{ request.GET.min_price }}">
-                    </div>
-                    <div class="col-md-2">
-                        <label>Max Price</label>
-                        <input type="number" name="max_price" class="form-control" value="{{ request.GET.max_price }}">
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <label>Sort By</label>
-                        <select name="sort" class="form-select">
-                            <option value="">Default</option>
-                            <option value="rating" {% if request.GET.sort == "rating" %}selected{% endif %}>Rating
-                            </option>
-                            <option value="arrival" {% if request.GET.sort == "arrival" %}selected{% endif %}>New
-                                Arrival
-                            </option>
-                            <option value="sale" {% if request.GET.sort == "sale" %}selected{% endif %}>Sale</option>
-                            <option value="bestselling" {% if request.GET.sort == "bestselling" %}selected{% endif %}>
-                                Bestselling
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="text-end mt-3">
-                    <button type="submit" class="btn btn-primary">Apply</button>
-                </div>
-            </div>
-        </form>
-        <div class="row">
-            {% for product in products %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm position-relative h-100">
+        <div class="leftside">
+            <h4>choose your bouquet</h4>
+            <h2>OUR COLLECTION</h2>
+        </div>
 
-                        {% if product.discount > 0 %}
-                            <div class="position-absolute top-0 start-0 bg-dark text-white px-2 py-1 rounded-end">
-                                -{{ product.discount }}%
+        <div class="collection-container">
+            {% if products %}
+                {% for product in products %}
+                    <div class="bouquet-card"
+                         onclick="showBouquetDetails(
+                                 '{{ product.name }}',
+                                 '{{ product.description }}',
+                                 '{{ product.price }}',
+                                 '{{ product.image.url }}',
+                                 '{% for f in product.flower_ingredients.all %}{{ f.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                                 '{{ product.size }}',
+                                 '{{ product.seasonality }}',
+                                 '{{ product.style }}')">
+                        <div class="bouquet-card-inner">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="bouquet-image">
+                            <div class="bouquet-info">
+                                <h3>{{ product.name }}</h3>
+                                {% if product.discount > 0 %}
+                                    <p class="price-discount">{{ product.discounted_price|floatformat:0 }} KZT</p>
+                                    <p class="price-original">{{ product.price|floatformat:0 }} KZT</p>
+                                {% else %}
+                                    <p class="price">{{ product.price|floatformat:0 }} KZT</p>
+                                {% endif %}
+                                <a href="{% url 'add_to_cart' product.id %}">
+                                    <button class="buy-now" onclick="event.stopPropagation();">Buy Now</button>
+                                </a>
                             </div>
-                        {% endif %}
-
-                        {% if product.image %}
-                            <div class="overflow-hidden" style="height: 500px;">
-                                <img src="{{ product.image.url }}" class="card-img-top w-100 h-100 object-fit-cover"
-                                     alt="{{ product.name }}">
-                            </div>
-                        {% endif %}
-
-                        <div class="card-body text-center">
-                            <h5 class="fw-bold text-uppercase">{{ product.name }}</h5>
-                            <p class="text-muted mb-1">{{ product.description|truncatewords:10 }}</p>
-
-                            {% if product.discount > 0 %}
-                                <p class="text-danger fs-5 fw-bold">{{ product.discounted_price|floatformat:0 }} KZT</p>
-                                <p class="text-decoration-line-through text-muted small">{{ product.price|floatformat:0 }}
-                                    KZT</p>
-                            {% else %}
-                                <p class="fs-5 fw-bold">{{ product.price|floatformat:0 }} KZT</p>
-                            {% endif %}
-
-                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-primary mt-2">Add to Cart</a>
                         </div>
                     </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-message">No bouquets found. Try adjusting your filters!</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <div id="bouquetModal" class="modal">
+        <div class="modal-content enhanced">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <img id="modalImage" src="" alt="">
+            <div class="modal-info">
+                <h2 id="modalName"></h2>
+                <p id="modalDescription" class="description"></p>
+                <div class="modal-details">
+                    <p><strong>Price:</strong> <span id="modalPrice"></span></p>
+                    <p><strong>Flowers:</strong> <span id="modalIngredients"></span></p>
+                    <p><strong>Size:</strong> <span id="modalSize"></span></p>
+                    <p><strong>Seasonality:</strong> <span id="modalSeasonality"></span></p>
+                    <p><strong>Style:</strong> <span id="modalStyle"></span></p>
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
+{% endblock %}
 
+{% block scripts %}
+    <script src="{% static 'js/product_list.js' %}"></script>
 {% endblock %}

@@ -7,9 +7,13 @@
     font-family: 'Playfair Display', serif;
 }
 
-body {
+html {
     background: url('../img/home_background.jpg') no-repeat center center/cover;
     background-attachment: fixed;
+}
+
+body {
+    background: transparent;
     min-height: 100vh;
     color: white;
     position: relative;
