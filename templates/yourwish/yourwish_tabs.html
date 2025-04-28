@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-    <div class="container my-5 bg-dark text-light p-4 rounded shadow">
+    <div class="container my-5 bg-transparent text-light p-4 rounded shadow">
         <ul class="nav nav-pills nav-fill mb-4" id="wishTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="flowers-tab" data-bs-toggle="tab" data-bs-target="#flowers"
@@ -28,18 +28,18 @@
                     <div class="row">
                         {% for flower in flowers %}
                             <div class="col-md-2 mb-4">
-                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0 flower-card"
+                                <div class="card h-100 text-center shadow-sm border-0 flower-card"
                                      style="transition: all 0.3s ease;">
                                     <img src="{{ flower.image.url }}" class="card-img-top img-fluid rounded-top"
                                          style="max-height: 200px; object-fit: cover;" alt="{{ flower.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ flower.name }}</h6>
                                         <div class="quantity-controls d-flex justify-content-center align-items-center mb-2">
-                                            <button type="button" class="btn btn-outline-light btn-sm minus-btn"
+                                            <button type="button" class="minus-btn"
                                                     data-id="{{ flower.id }}">-
                                             </button>
                                             <span class="mx-2" id="qty-{{ flower.id }}">0</span>
-                                            <button type="button" class="btn btn-outline-light btn-sm plus-btn"
+                                            <button type="button" class="plus-btn"
                                                     data-id="{{ flower.id }}">+
                                             </button>
                                         </div>
@@ -61,7 +61,7 @@
                     <div class="row mb-4">
                         {% for paper in papers %}
                             <div class="col-md-3">
-                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0 accessory-card"
+                                <div class="card h-100 text-center shadow-sm border-0 accessory-card"
                                      style="transition: all 0.3s ease;">
                                     <input type="radio" name="wrapping_paper" value="{{ paper.id }}"
                                            class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
@@ -80,7 +80,7 @@
                     <div class="row mb-4">
                         {% for ribbon in ribbons %}
                             <div class="col-md-3">
-                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0 accessory-card"
+                                <div class="card h-100 text-center shadow-sm border-0 accessory-card"
                                      style="transition: all 0.3s ease;">
                                     <input type="radio" name="ribbon" value="{{ ribbon.id }}"
                                            class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
@@ -102,7 +102,7 @@
                     {% csrf_token %}
                     <div class="card-options row">
                         <div class="col-md-2">
-                            <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0"
+                            <div class="card h-100 text-center shadow-sm border-0"
                                  style="transition: all 0.3s ease;">
                                 <input type="radio" name="postcard_id" value=""
                                        class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
@@ -114,7 +114,7 @@
                         </div>
                         {% for card in cards %}
                             <div class="col-md-2">
-                                <div class="card h-100 text-center bg-secondary text-white shadow-sm border-0"
+                                <div class="card h-100 text-center shadow-sm border-0"
                                      style="transition: all 0.3s ease;">
                                     <input type="radio" name="postcard_id" value="{{ card.id }}"
                                            class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
@@ -147,43 +147,58 @@
 
     <script>
         // Track active tab from backend via sessionStorage
+        const selectedFlowers = {};
         let currentTab = sessionStorage.getItem("activeTab") || "flowers-tab";
+
         document.addEventListener("DOMContentLoaded", function () {
             const tabTrigger = new bootstrap.Tab(document.getElementById(currentTab));
             if (tabTrigger) tabTrigger.show();
-        });
 
-        const selectedFlowers = {};
+            preloadQuantities();
+            setupQuantityButtons();
+            updateEstimatedPrice();
 
-        document.querySelectorAll(".plus-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const id = btn.dataset.id;
-                selectedFlowers[id] = (selectedFlowers[id] || 0) + 1;
-                document.getElementById("qty-" + id).textContent = selectedFlowers[id];
-                const input = document.getElementById("input-" + id);
-                input.name = "flowers_" + id;
-                input.value = id;
-                input.disabled = false;
-                const pricePerItem = parseFloat(btn.closest('.flower-card').querySelector('.flower-price').dataset.price);
-                document.getElementById("price-" + id).innerText = (selectedFlowers[id] * pricePerItem).toFixed(0) + " тг";
-                updateEstimatedPrice();
-                saveToSession();
+            document.querySelectorAll('#wishTabs button[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function () {
+                    setupQuantityButtons();
+                });
             });
         });
 
-        document.querySelectorAll(".minus-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const id = btn.dataset.id;
-                selectedFlowers[id] = Math.max((selectedFlowers[id] || 0) - 1, 0);
-                document.getElementById("qty-" + id).textContent = selectedFlowers[id];
-                const input = document.getElementById("input-" + id);
-                input.disabled = selectedFlowers[id] <= 0;
-                const pricePerItem = parseFloat(btn.closest('.flower-card').querySelector('.flower-price').dataset.price);
-                document.getElementById("price-" + id).innerText = (selectedFlowers[id] * pricePerItem).toFixed(0) + " тг";
-                updateEstimatedPrice();
-                saveToSession();
+        function preloadQuantities() {
+            document.querySelectorAll(".quantity-controls span[id^='qty-']").forEach(span => {
+                const id = span.id.replace('qty-', '');
+                const qty = parseInt(span.textContent) || 0;
+                selectedFlowers[id] = qty;
             });
-        });
+        }
+
+        function setupQuantityButtons() {
+            document.querySelectorAll(".plus-btn").forEach(btn => {
+                btn.removeEventListener("click", plusClickHandler);
+                btn.addEventListener("click", plusClickHandler);
+            });
+            document.querySelectorAll(".minus-btn").forEach(btn => {
+                btn.removeEventListener("click", minusClickHandler);
+                btn.addEventListener("click", minusClickHandler);
+            });
+        }
+
+        function plusClickHandler(e) {
+            const id = e.target.dataset.id;
+            selectedFlowers[id] = (selectedFlowers[id] || 0) + 1;
+            document.getElementById("qty-" + id).textContent = selectedFlowers[id];
+            console.log(`Plus clicked: ID=${id}, Quantity=${selectedFlowers[id]}`);
+            updateEstimatedPrice();
+        }
+
+        function minusClickHandler(e) {
+            const id = e.target.dataset.id;
+            selectedFlowers[id] = Math.max((selectedFlowers[id] || 0) - 1, 0);
+            document.getElementById("qty-" + id).textContent = selectedFlowers[id];
+            console.log(`Minus clicked: ID=${id}, Quantity=${selectedFlowers[id]}`);
+            updateEstimatedPrice();
+        }
 
         document.querySelectorAll("input[name='wrapping_paper'], input[name='ribbon'], input[name='postcard_id'], textarea[name='message']").forEach(input => {
             input.addEventListener("change", saveToSession);
@@ -195,6 +210,7 @@
         });
 
         function updateEstimatedPrice() {
+            console.log("Updating estimated price with selectedFlowers:", selectedFlowers);
             let total = 0;
             Object.entries(selectedFlowers).forEach(([id, qty]) => {
                 const pricePerItem = parseFloat(document.querySelector(`#price-${id}`).dataset.price);
@@ -255,6 +271,9 @@
         });
     </script>
     <style>
+        .card {
+            color: white;
+        }
         .flower-card:hover {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
             transform: scale(1.02);
@@ -264,6 +283,26 @@
         .card-options .card:hover {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
             transform: scale(1.02);
+        }
+        .flower-card, .accessory-card, .card-options .card {
+            background: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-family: 'Cormorant Unicase', serif;
+        }
+        .flower-card .card-title, .accessory-card .card-title, .card-options .card-title {
+            font-family: 'Cormorant Unicase', serif;
+        }
+        .quantity-controls button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-family: 'Cormorant Unicase', serif;
+            padding: 2px 10px;
+        }
+        .quantity-controls button:hover {
+            background: #EB889E;
+            border-color: #EB889E;
+            color: #fff;
         }
     </style>
 {% endblock %}

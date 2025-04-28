@@ -1,4 +1,5 @@
 import base64
+import logging
 import os
 from io import BytesIO
 from datetime import datetime
@@ -110,6 +111,12 @@ def yourwish_bloomit(request):
 
     request.session["ai_bouquet_image"] = f"ai_bouquets/preview_{request.user.id}_{timestamp}.jpeg"
 
+    # Preserve bouquet session data
+    if request.method == "POST":
+        request.session["flowers"] = selected_flowers
+        request.session["wrapping_paper"] = wrapping_paper_id
+        request.session["ribbon"] = ribbon_id
+
     return render(request, "yourwish/bloom_result.html", {
         "image_url": f"/media/ai_bouquets/preview_{request.user.id}_{timestamp}.jpeg"
     })
@@ -117,14 +124,22 @@ def yourwish_bloomit(request):
 
 @login_required
 def yourwish_confirm_bouquet(request):
-    selected_flowers = request.session.get("selected_flowers", {})
-    wrapping_paper_id = request.session.get("wrapping_paper")
-    ribbon_id = request.session.get("ribbon")
+    print(request.session.keys())
+    print(request.session.values())
+    selected_flowers = {int(k): int(v) for k, v in request.session.get("flowers", {}).items() if v > 0}
+    wrapping_paper_id = int(request.session.get("wrapping_paper")) if request.session.get("wrapping_paper") else None
+    ribbon_id = int(request.session.get("ribbon")) if request.session.get("ribbon") else None
+    postcard_id = int(request.session.get("postcard_id")) if request.session.get("postcard_id") else None
     message = request.session.get("message", "")
-    postcard_id = request.session.get("postcard_id")
     bouquet_image = request.session.get("ai_bouquet_image", "ai_bouquets/sample_bouquet.jpeg")
 
-    bouquet_description = "Custom bouquet created by AI"
+    import random
+    adjectives = ["Blossoming", "Radiant", "Velvet", "Ethereal", "Golden", "Serene"]
+    nouns = ["Dream", "Whispers", "Charm", "Elegance", "Symphony", "Delight"]
+    flower_names = [Product.objects.get(id=flower_id).name for flower_id in selected_flowers.keys()]
+    flower_part = ", ".join(flower_names) if flower_names else "Bouquet"
+    bouquet_description = f"{random.choice(adjectives)} {random.choice(nouns)} with {flower_part}"
+
     total_price = 0
 
     custom_bouquet = CustomBouquet.objects.create(
@@ -137,44 +152,51 @@ def yourwish_confirm_bouquet(request):
     )
 
     for flower_id, qty in selected_flowers.items():
-        try:
-            flower = Product.objects.get(id=flower_id, category='flower')
-            CustomBouquetFlower.objects.create(
-                bouquet=custom_bouquet,
-                product=flower,
-                quantity=int(qty)
-            )
-            total_price += flower.price * int(qty)
-        except Product.DoesNotExist:
-            continue
+        # try:
+        flower = Product.objects.get(id=flower_id, category='flower')
+        CustomBouquetFlower.objects.create(
+            bouquet=custom_bouquet,
+            product=flower,
+            quantity=qty
+        )
+        total_price += flower.price * qty
+        print(f"Flowers price: {total_price}")
+        # except Product.DoesNotExist as e:
+        #     logging.error(e.args)
+        #     continue
 
     if wrapping_paper_id:
-        try:
-            paper = Product.objects.get(id=wrapping_paper_id, category='wrapping_paper')
-            CustomBouquetAccessory.objects.create(
-                bouquet=custom_bouquet,
-                product=paper,
-                accessory_type="wrapping_paper"
-            )
-            total_price += paper.price
-        except Product.DoesNotExist:
-            pass
+        # try:
+        paper = Product.objects.get(id=wrapping_paper_id, category='wrapping_paper')
+        CustomBouquetAccessory.objects.create(
+            bouquet=custom_bouquet,
+            product=paper,
+            accessory_type="wrapping_paper"
+        )
+        total_price += paper.price
+        print(f" + Wrapping price: {total_price}")
+
+        # except Product.DoesNotExist:
+        #     pass
 
     if ribbon_id:
-        try:
-            ribbon = Product.objects.get(id=ribbon_id, category='ribbon')
-            CustomBouquetAccessory.objects.create(
-                bouquet=custom_bouquet,
-                product=ribbon,
-                accessory_type="ribbon"
-            )
-            total_price += ribbon.price
-        except Product.DoesNotExist:
-            pass
+        # try:
+        ribbon = Product.objects.get(id=ribbon_id, category='ribbon')
+        CustomBouquetAccessory.objects.create(
+            bouquet=custom_bouquet,
+            product=ribbon,
+            accessory_type="ribbon"
+        )
+        total_price += ribbon.price
+        print(f" + Ribbon price: {total_price}")
+        # except Product.DoesNotExist:
+        #     pass
 
     if custom_bouquet.postcard:
         total_price += custom_bouquet.postcard.price
+        print(f" + postcard price: {total_price}")
 
+    print(f"Final calculated total price: {total_price}")
     custom_bouquet.total_price = total_price
     custom_bouquet.save()
 

@@ -20,7 +20,7 @@ def view_cart(request):
             "flowers": flowers,
             "accessories": accessories,
         })
-
+    print(enriched_items)
     total = sum([item["item"].total_price() for item in enriched_items])
 
     return render(request, "cart/cart.html", {
