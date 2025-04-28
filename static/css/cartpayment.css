@@ -1,0 +1,24 @@
+body {
+    color: black;
+}
+.container {
+    background-color: #f8f9fa;
+}
+
+h2 {
+    font-family: 'Cormorant Unicase', serif;
+}
+
+label {
+    font-family: 'Cormorant Unicase', serif;
+}
+
+.btn-primary {
+    background-color: #EB889E;
+    border: none;
+    font-family: 'Cormorant Unicase', serif;
+}
+
+.btn-primary:hover {
+    background-color: #d96a87;
+}

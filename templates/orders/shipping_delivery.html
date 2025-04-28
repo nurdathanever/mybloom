@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/shipping.css' %}">
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Shipping & Delivery Information</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Address</label>
+                <input type="text" name="address" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Delivery Method</label>
+                <select name="delivery_method" class="form-select" required>
+                    <option value="standard">Standard Delivery</option>
+                    <option value="express">Express Delivery</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Comment</label>
+                <input type="text" name="comment" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Preferred Date</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Preferred Time</label>
+                <input type="time" name="time" class="form-control" required>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-5">Continue to Payment</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

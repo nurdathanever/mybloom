@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/confirmation.css' %}">
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Confirm Your Order</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Shipping Information</h4>
+            <p><strong>Name:</strong> {{ shipping.name }}</p>
+            <p><strong>Email:</strong> {{ shipping.email }}</p>
+            <p><strong>Phone:</strong> {{ shipping.phone }}</p>
+            <p><strong>Address:</strong> {{ shipping.address }}</p>
+            <p><strong>Delivery Method:</strong> {{ shipping.delivery_method }}</p>
+            <p><strong>Date:</strong> {{ shipping.date }}</p>
+            <p><strong>Time:</strong> {{ shipping.time }}</p>
+        </div>
+        <div class="col-md-6">
+            <h4>Payment Information</h4>
+            <p><strong>Cardholder Name:</strong> {{ payment.card_name }}</p>
+            <p><strong>Card Number:</strong> **** **** **** {{ payment.card_number|slice:"-4:" }}</p>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Order Summary</h4>
+    <ul class="list-group mb-4">
+        {% for item in cart_items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item.name }} x {{ item.quantity }}
+                <span>{{ item.total_price }} KZT</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="text-center">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary px-5">Place Order</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

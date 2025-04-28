@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/cartpayment.css' %}">
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Payment Information</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label>Cardholder Name</label>
+                    <input type="text" name="card_name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Card Number</label>
+                    <input type="text" name="card_number" class="form-control" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Expiry Date</label>
+                        <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>CVV</label>
+                        <input type="text" name="cvv" class="form-control" required>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary px-5">Continue to Confirmation</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

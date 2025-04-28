@@ -152,45 +152,47 @@ def yourwish_confirm_bouquet(request):
     )
 
     for flower_id, qty in selected_flowers.items():
-        # try:
-        flower = Product.objects.get(id=flower_id, category='flower')
-        CustomBouquetFlower.objects.create(
-            bouquet=custom_bouquet,
-            product=flower,
-            quantity=qty
-        )
-        total_price += flower.price * qty
-        print(f"Flowers price: {total_price}")
-        # except Product.DoesNotExist as e:
-        #     logging.error(e.args)
-        #     continue
+        try:
+            flower = Product.objects.get(id=flower_id, category='flower')
+            CustomBouquetFlower.objects.create(
+                bouquet=custom_bouquet,
+                product=flower,
+                quantity=qty
+            )
+            total_price += flower.price * qty
+            print(f"Flowers price: {total_price}")
+        except Product.DoesNotExist as e:
+            logging.error(e.args)
+            continue
 
     if wrapping_paper_id:
-        # try:
-        paper = Product.objects.get(id=wrapping_paper_id, category='wrapping_paper')
-        CustomBouquetAccessory.objects.create(
-            bouquet=custom_bouquet,
-            product=paper,
-            accessory_type="wrapping_paper"
-        )
-        total_price += paper.price
-        print(f" + Wrapping price: {total_price}")
+        try:
+            paper = Product.objects.get(id=wrapping_paper_id, category='wrapping_paper')
+            CustomBouquetAccessory.objects.create(
+                bouquet=custom_bouquet,
+                product=paper,
+                accessory_type="wrapping_paper"
+            )
+            total_price += paper.price
+            print(f" + Wrapping price: {total_price}")
 
-        # except Product.DoesNotExist:
-        #     pass
+        except Product.DoesNotExist as e:
+            logging.error(e.args)
+            pass
 
     if ribbon_id:
-        # try:
-        ribbon = Product.objects.get(id=ribbon_id, category='ribbon')
-        CustomBouquetAccessory.objects.create(
-            bouquet=custom_bouquet,
-            product=ribbon,
-            accessory_type="ribbon"
-        )
-        total_price += ribbon.price
-        print(f" + Ribbon price: {total_price}")
-        # except Product.DoesNotExist:
-        #     pass
+        try:
+            ribbon = Product.objects.get(id=ribbon_id, category='ribbon')
+            CustomBouquetAccessory.objects.create(
+                bouquet=custom_bouquet,
+                product=ribbon,
+                accessory_type="ribbon"
+            )
+            total_price += ribbon.price
+            print(f" + Ribbon price: {total_price}")
+        except Product.DoesNotExist as e:
+            logging.error(e.args)
+            pass
 
     if custom_bouquet.postcard:
         total_price += custom_bouquet.postcard.price

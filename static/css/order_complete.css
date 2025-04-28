@@ -1,0 +1,28 @@
+body {
+    color: black;
+}
+.container {
+    background-color: #f8f9fa;
+}
+
+h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    background-color: #EB889E;
+    border: none;
+    font-family: 'Cormorant Unicase', serif;
+    padding: 10px 30px;
+    border-radius: 30px;
+}
+
+.btn-primary:hover {
+    background-color: #d96a87;
+}

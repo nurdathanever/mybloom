@@ -18,6 +18,7 @@ urlpatterns = [
     path("admin-dashboard/", include("admin_panel.urls")),
     path('yourwish/', include('yourwish.urls')),
     path("cart/", include("cart.urls")),
+    path('orders/', include('orders.urls'))
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

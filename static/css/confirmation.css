@@ -1,0 +1,35 @@
+
+body {
+    color: black;
+    font-family: 'Cormorant Unicase', serif;
+
+}
+.container {
+    background-color: #f8f9fa;
+}
+h2, h4 {
+    font-family: 'Cormorant Unicase', serif;
+    color: #333;
+}
+
+p {
+    font-family: 'Cormorant Unicase', serif;
+    margin: 0 0 5px 0;
+}
+
+.list-group-item {
+    font-family: 'Cormorant Unicase', serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-primary {
+    background-color: #EB889E;
+    border: none;
+    font-family: 'Cormorant Unicase', serif;
+}
+
+.btn-primary:hover {
+    background-color: #d96a87;
+}
