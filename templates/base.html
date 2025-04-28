@@ -18,64 +18,62 @@
 </head>
 <body>
 
-<section class="hero">
-    <header>
-        <h1 class="logo">My Bloom</h1>
-        <nav>
-            <ul>
-                {% if user.is_authenticated and user.role == "admin" %}
-                    <li><a href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
-                    <li><a href="{% url 'product_create' %}">{% trans "Add Product" %}</a></li>
-                {% else %}
-                    <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
-                {% endif %}
-                <li><a href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
-                <li><a href="{% url 'yourwish_tabs' %}">{% trans "YourWish" %}</a></li>
-            </ul>
-        </nav>
-        <div class="icons">
-            {% if user.is_authenticated %}
-                <a href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
-                <a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i></a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i
-                        class="fa-solid fa-right-from-bracket"></i></a>
+<header>
+    <h1 class="logo">My Bloom</h1>
+    <nav>
+        <ul>
+            {% if user.is_authenticated and user.role == "admin" %}
+                <li><a href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
+                <li><a href="{% url 'product_create' %}">{% trans "Add Product" %}</a></li>
             {% else %}
-                <a href="{% url 'account_login' %}"><i class="fa fa-user"></i></a>
-                <a href="{% url 'account_signup' %}"><i class="fa fa-user-plus"></i></a>
+                <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
             {% endif %}
-            <div class="dropdown d-inline">
-                <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
-                        class="fa-solid fa-language"></i></a>
-                <ul class="dropdown-menu">
-                    {% for lang in languages %}
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="language" value="{{ lang.code }}">
-                                <button type="submit"
-                                        class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
-                                    {{ lang.name_local }}
-                                </button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+            <li><a href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
+            <li><a href="{% url 'yourwish_tabs' %}">{% trans "YourWish" %}</a></li>
+        </ul>
+    </nav>
+    <div class="icons">
+        {% if user.is_authenticated %}
+            <a href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i></a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i
+                    class="fa-solid fa-right-from-bracket"></i></a>
+        {% else %}
+            <a href="{% url 'account_login' %}"><i class="fa fa-user"></i></a>
+            <a href="{% url 'account_signup' %}"><i class="fa fa-user-plus"></i></a>
+        {% endif %}
+        <div class="dropdown d-inline">
+            <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
+                    class="fa-solid fa-language"></i></a>
+            <ul class="dropdown-menu">
+                {% for lang in languages %}
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="language" value="{{ lang.code }}">
+                            <button type="submit"
+                                    class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
+                                {{ lang.name_local }}
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
-    </header>
+    </div>
+</header>
 
-    {% block content %}{% endblock %}
+{% block content %}{% endblock %}
 
-    <footer class="bg-dark text-white text-center p-3 mt-5">
-        <p>&copy; 2025 MyBloom. All rights reserved.</p>
-        <div>
-            <a href="#" class="text-light mx-2">Facebook</a>
-            <a href="#" class="text-light mx-2">Instagram</a>
-            <a href="#" class="text-light mx-2">Twitter</a>
-        </div>
-    </footer>
+<footer class="bg-dark text-white text-center p-4">
+    <p>&copy; 2025 MyBloom. All rights reserved.</p>
+    <div>
+        <a href="#" class="text-light mx-2">Facebook</a>
+        <a href="#" class="text-light mx-2">Instagram</a>
+        <a href="#" class="text-light mx-2">Twitter</a>
+    </div>
+</footer>
 
-</section>
 
 <!-- Logout Modal -->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">

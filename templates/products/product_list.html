@@ -11,7 +11,8 @@
     <section class="collection">
         <div class="filter-container">
             <div class="filter-header" onclick="toggleFilter()">
-                <i class="fa-solid fa-filter"></i> Filter Bouquets
+                <i class="fa-solid fa-filter"></i> Choose your preferences to
+                    find the perfect bouquet!
             </div>
 
             <div class="filter-content" id="filterContent">
@@ -88,6 +89,7 @@
                 </div>
 
                 <button id="apply-filters" class="apply-button" onclick="applyFilters()">Apply</button>
+                <button type="button" class="apply-button" onclick="clearFilters()">Clear Filters</button>
             </div>
         </div>
 
@@ -96,14 +98,14 @@
             <h2>OUR COLLECTION</h2>
         </div>
 
-        <div class="collection-container" style="padding: 0 80px; gap: 40px;">
+        <div class="collection-container">
             {% if products %}
                 {% for product in products %}
                     <div class="bouquet-card"
                          onclick="showBouquetDetails(
                                  '{{ product.name }}',
                                  '{{ product.description }}',
-                                 '{{ product.price }}',
+                                 '{% if product.discount > 0 %}{{ product.discounted_price|floatformat:0 }}{% else %}{{ product.price|floatformat:0 }}{% endif %}',
                                  '{{ product.image.url }}',
                                  '{% for f in product.flower_ingredients.all %}{{ f.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
                                  '{{ product.size }}',
@@ -153,4 +155,10 @@
 
 {% block scripts %}
     <script src="{% static 'js/product_list.js' %}"></script>
+    <script>
+    function clearFilters() {
+        document.querySelectorAll('.filter-options-container input[type="checkbox"]').forEach(cb => cb.checked = false);
+        applyFilters();
+    }
+    </script>
 {% endblock %}
