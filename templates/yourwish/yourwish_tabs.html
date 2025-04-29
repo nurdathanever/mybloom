@@ -45,7 +45,7 @@
                                         </div>
                                         <input type="hidden" name="flowers" value="{{ flower.id }}"
                                                id="input-{{ flower.id }}" disabled>
-                                        <p class="flower-price" id="price-{{ flower.id }}" data-price="{{ flower.price|floatformat }}">{{ flower.price|floatformat }} тг</p>
+                                        <p class="flower-price text-secondary" id="price-{{ flower.id }}" data-price="{{ flower.price|floatformat }}">{{ flower.price|floatformat }} тг</p>
                                     </div>
                                 </div>
                             </div>
@@ -61,17 +61,15 @@
                     <div class="row mb-4">
                         {% for paper in papers %}
                             <div class="col-md-3">
-                                <div class="card h-100 text-center shadow-sm border-0 accessory-card"
-                                     style="transition: all 0.3s ease;">
-                                    <input type="radio" name="wrapping_paper" value="{{ paper.id }}"
-                                           class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                <label class="card h-100 text-center shadow-sm border-0 accessory-card" style="transition: all 0.3s ease; cursor: pointer;">
+                                    <input type="radio" name="wrapping_paper" value="{{ paper.id }}" class="d-none" autocomplete="off">
                                     <img src="{{ paper.image.url }}" class="card-img-top img-fluid rounded-top"
                                          style="max-height: 300px; object-fit: cover;" alt="{{ paper.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ paper.name }}</h6>
                                         <p class="mb-0"><strong>{{ paper.price|floatformat }} тг</strong></p>
                                     </div>
-                                </div>
+                                </label>
                             </div>
                         {% endfor %}
                     </div>
@@ -80,17 +78,15 @@
                     <div class="row mb-4">
                         {% for ribbon in ribbons %}
                             <div class="col-md-3">
-                                <div class="card h-100 text-center shadow-sm border-0 accessory-card"
-                                     style="transition: all 0.3s ease;">
-                                    <input type="radio" name="ribbon" value="{{ ribbon.id }}"
-                                           class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                <label class="card h-100 text-center shadow-sm border-0 accessory-card" style="transition: all 0.3s ease; cursor: pointer;">
+                                    <input type="radio" name="ribbon" value="{{ ribbon.id }}" class="d-none" autocomplete="off">
                                     <img src="{{ ribbon.image.url }}" class="card-img-top img-fluid rounded-top"
                                          style="max-height: 300px; object-fit: cover;" alt="{{ ribbon.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ ribbon.name }}</h6>
                                         <p class="mb-0"><strong>{{ ribbon.price|floatformat }} тг</strong></p>
                                     </div>
-                                </div>
+                                </label>
                             </div>
                         {% endfor %}
                     </div>
@@ -102,29 +98,25 @@
                     {% csrf_token %}
                     <div class="card-options row">
                         <div class="col-md-2">
-                            <div class="card h-100 text-center shadow-sm border-0"
-                                 style="transition: all 0.3s ease;">
-                                <input type="radio" name="postcard_id" value=""
-                                       class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                            <label class="card h-100 text-center shadow-sm border-0" style="transition: all 0.3s ease; cursor: pointer;">
+                                <input type="radio" name="postcard_id" value="" class="d-none" autocomplete="off">
                                 <div class="card-body p-4 d-flex align-items-center justify-content-center"
                                      style="height: 180px;">
                                     <h6 class="card-title">No Postcard</h6>
                                 </div>
-                            </div>
+                            </label>
                         </div>
                         {% for card in cards %}
                             <div class="col-md-2">
-                                <div class="card h-100 text-center shadow-sm border-0"
-                                     style="transition: all 0.3s ease;">
-                                    <input type="radio" name="postcard_id" value="{{ card.id }}"
-                                           class="form-check-input position-absolute m-2" style="top: 0; left: 0;">
+                                <label class="card h-100 text-center shadow-sm border-0" style="transition: all 0.3s ease; cursor: pointer;">
+                                    <input type="radio" name="postcard_id" value="{{ card.id }}" class="d-none" autocomplete="off">
                                     <img src="{{ card.image.url }}" alt="Postcard {{ card.id }}"
                                          class="card-img-top img-fluid rounded-top"
                                          style="max-height: 300px; object-fit: cover;" alt="{{ card.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ card.name }}</h6>
                                     </div>
-                                </div>
+                                </label>
                             </div>
                         {% endfor %}
                     </div>
@@ -155,6 +147,21 @@
             if (tabTrigger) tabTrigger.show();
 
             preloadQuantities();
+            // Explicitly set each flower price based on dataset and selection
+            document.querySelectorAll(".flower-price").forEach(el => {
+                const id = el.id.replace("price-", "");
+                const price = parseFloat(el.dataset.price);
+                const qty = selectedFlowers[id] || 0;
+                const cardTotal = qty * price;
+                el.innerText = (qty > 0 ? cardTotal.toFixed(0) : price.toFixed(0)) + " тг";
+                if (qty > 0) {
+                    el.classList.remove("text-secondary");
+                    el.classList.add("text-white");
+                } else {
+                    el.classList.remove("text-white");
+                    el.classList.add("text-secondary");
+                }
+            });
             setupQuantityButtons();
             updateEstimatedPrice();
 
@@ -212,9 +219,26 @@
         function updateEstimatedPrice() {
             console.log("Updating estimated price with selectedFlowers:", selectedFlowers);
             let total = 0;
+            // Set prices and classes for all flower cards, regardless of selection
+            document.querySelectorAll(".flower-price").forEach(el => {
+                const id = el.id.replace("price-", "");
+                const price = parseFloat(el.dataset.price);
+                const qty = selectedFlowers[id] || 0;
+                const cardTotal = qty * price;
+                el.innerText = (qty > 0 ? cardTotal.toFixed(0) : price.toFixed(0)) + " тг";
+                if (qty > 0) {
+                    el.classList.remove("text-secondary");
+                    el.classList.add("text-white");
+                } else {
+                    el.classList.remove("text-white");
+                    el.classList.add("text-secondary");
+                }
+            });
             Object.entries(selectedFlowers).forEach(([id, qty]) => {
-                const pricePerItem = parseFloat(document.querySelector(`#price-${id}`).dataset.price);
-                total += qty * pricePerItem;
+                const priceEl = document.querySelector(`#price-${id}`);
+                const pricePerItem = parseFloat(priceEl.dataset.price);
+                const cardTotal = qty * pricePerItem;
+                total += cardTotal;
             });
 
             const wrappingPrice = parseFloat(document.querySelector("input[name='wrapping_paper']:checked")?.closest('.card').querySelector('strong')?.innerText || 0);
@@ -303,6 +327,23 @@
             background: #EB889E;
             border-color: #EB889E;
             color: #fff;
+        }
+        #wishTabs {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .nav-link {
+            color: #fff;
+        }
+        /* Highlight selected accessory or postcard */
+        input[type="radio"]:checked + img,
+        input[type="radio"]:checked + .card-body {
+            border: 2px solid #EB889E;
+            box-shadow: 0 0 10px #EB889E;
+        }
+        label.card input[type="radio"]:checked ~ img,
+        label.card input[type="radio"]:checked ~ .card-body {
+            border: 2px solid #EB889E;
+            box-shadow: 0 0 10px #EB889E;
         }
     </style>
 {% endblock %}
