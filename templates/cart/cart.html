@@ -10,6 +10,13 @@
             color: #333;
         }
 
+        .minus-btn {
+            padding: 0.2rem 0.5rem;
+        }
+        .plus-btn {
+            padding: 0.2rem 0.5rem;
+        }
+
         .btn-outline-dark:hover {
             background-color: #333;
             color: #EB889E;
@@ -36,13 +43,14 @@
         .cart-content-bg {
             background: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: grid;
         }
 
         .btn-link.text-dark i {
             font-size: 18px;
         }
+
         .btn-link.text-dark:hover {
             color: #EB889E;
         }
@@ -50,16 +58,19 @@
     <div class="cart-content-bg p-4">
         <div class="container my-5">
             <h2 class="text-center mb-2" style="font-family: 'Cormorant Unicase'; font-size: 32px;">Shopping cart</h2>
-            <p class="text-center" style="font-family: 'Cormorant Unicase'; font-size: 16px;">You have {{ cart_items|length }} items in your cart</p>
+            <p class="text-center" style="font-family: 'Cormorant Unicase'; font-size: 16px;">You
+                have {{ cart_items|length }} items in your cart</p>
             {% if cart_items %}
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start">
                     <div class="w-100">
                         {% for cart_item in cart_items %}
                             <div class="d-flex align-items-center mb-4">
                                 {% if cart_item.item.product %}
-                                    <img src="{{ cart_item.item.product.image.url }}" width="120" height="120" class="me-3 rounded" alt="{{ cart_item.item.product.name }}">
+                                    <img src="{{ cart_item.item.product.image.url }}" width="120" height="120"
+                                         class="me-3 rounded" alt="{{ cart_item.item.product.name }}">
                                     <div class="cart-bouquet-info me-auto">
-                                        <p class="mb-1" style="font-family: 'Cormorant Unicase';">{{ cart_item.item.product.name }}</p>
+                                        <p class="mb-1"
+                                           style="font-family: 'Cormorant Unicase';">{{ cart_item.item.product.name }}</p>
                                         <p class="mb-1"><strong>Flowers:</strong>
                                             {% for flower in cart_item.item.product.flower_ingredients.all %}
                                                 {{ flower.name }}{% if not forloop.last %}, {% endif %}
@@ -72,16 +83,22 @@
                                                 <span class="text-danger">{{ cart_item.item.product.discounted_price|floatformat:0 }} KZT</span>
                                                 <span class="text-muted text-decoration-line-through ms-2">{{ cart_item.item.product.price|floatformat:0 }} KZT</span>
                                             </p>
-                                            <span id="price-{{ cart_item.item.id }}" data-price="{{ cart_item.item.product.discounted_price }}" style="display:none;"></span>
+                                            <span id="price-{{ cart_item.item.id }}"
+                                                  data-price="{{ cart_item.item.product.discounted_price }}"
+                                                  style="display:none;"></span>
                                         {% else %}
                                             <p class="mb-1">{{ cart_item.item.product.price|floatformat:0 }} KZT</p>
-                                            <span id="price-{{ cart_item.item.id }}" data-price="{{ cart_item.item.product.price }}" style="display:none;"></span>
+                                            <span id="price-{{ cart_item.item.id }}"
+                                                  data-price="{{ cart_item.item.product.price }}"
+                                                  style="display:none;"></span>
                                         {% endif %}
                                     </div>
                                 {% elif cart_item.item.custom_bouquet %}
-                                    <img src="{{ cart_item.image }}" width="120" height="120" class="me-3 rounded" alt="Custom Bouquet">
+                                    <img src="{{ cart_item.image }}" width="120" height="120" class="me-3 rounded"
+                                         alt="Custom Bouquet">
                                     <div class="cart-bouquet-info me-auto">
-                                        <p class="mb-1" style="font-family: 'Cormorant Unicase';">{{ cart_item.item.custom_bouquet.description }}</p>
+                                        <p class="mb-1"
+                                           style="font-family: 'Cormorant Unicase';">{{ cart_item.item.custom_bouquet.description }}</p>
                                         <p class="mb-1"><strong>Flowers:</strong>
                                             {% for flower in cart_item.flowers %}
                                                 {{ flower.product.name }}{% if not forloop.last %}, {% endif %}
@@ -89,20 +106,29 @@
                                                 None
                                             {% endfor %}
                                         </p>
-                                        <p class="mb-1">{{ cart_item.item.custom_bouquet.total_price|floatformat:0 }} KZT</p>
+                                        <p class="mb-1">{{ cart_item.item.custom_bouquet.total_price|floatformat:0 }}
+                                            KZT</p>
                                     </div>
-                                    <span id="price-{{ cart_item.item.id }}" data-price="{{ cart_item.item.custom_bouquet.total_price }}" style="display:none;"></span>
+                                    <span id="price-{{ cart_item.item.id }}"
+                                          data-price="{{ cart_item.item.custom_bouquet.total_price }}"
+                                          style="display:none;"></span>
                                 {% endif %}
                                 <div class="d-flex align-items-center">
-                                    <button type="button" class="btn btn-outline-dark btn-sm minus-btn" data-id="{{ cart_item.item.id }}">&#8722;</button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm minus-btn"
+                                            data-id="{{ cart_item.item.id }}">&#8722;
+                                    </button>
                                     <span id="qty-{{ cart_item.item.id }}" class="mx-2">{{ cart_item.quantity }}</span>
-                                    <button type="button" class="btn btn-outline-dark btn-sm plus-btn" data-id="{{ cart_item.item.id }}">&#43;</button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm plus-btn"
+                                            data-id="{{ cart_item.item.id }}">&#43;
+                                    </button>
                                 </div>
                                 <div class="ms-4" style="min-width: 120px;">
-                                    <strong id="total-{{ cart_item.item.id }}">{{ cart_item.item.total_price }} KZT</strong>
+                                    <strong id="total-{{ cart_item.item.id }}">{{ cart_item.item.total_price }}
+                                        KZT</strong>
                                 </div>
                                 <div class="ms-3">
-                                    <button type="button" class="btn btn-link text-dark remove-btn" data-id="{{ cart_item.item.id }}"><i class="fa fa-trash"></i></button>
+                                    <button type="button" class="btn btn-link text-dark remove-btn"
+                                            data-id="{{ cart_item.item.id }}"><i class="fa fa-trash"></i></button>
                                 </div>
                             </div>
                         {% endfor %}
@@ -111,14 +137,16 @@
                         <h5 style="font-family: 'Cormorant Unicase';">Order Summary</h5>
                         <div class="my-3">
                             <input type="checkbox" id="cashback" class="form-check-input">
-                            <label for="cashback" class="form-label ms-2" style="font-family: 'Cormorant Unicase';">Use Your Cashback</label>
+                            <label for="cashback" class="form-label ms-2" style="font-family: 'Cormorant Unicase';">Use
+                                Your Cashback</label>
                         </div>
                         <p>Subtotal: <span id="cart-subtotal">{{ total }} KZT</span></p>
                         <p>Shipping: 1500 KZT</p>
                         <p>Total: <span id="cart-total">{{ total|add:1500 }} KZT</span></p>
                         <p style="font-size: 12px;">Cashback 15%</p>
                         <div class="text-center">
-                            <a href="{% url 'checkout_shipping' %}" class="btn btn-pink mt-3" style="background-color: #EB889E; color: #fff; padding: 10px 20px; border-radius: 30px;">Checkout</a>
+                            <a href="{% url 'checkout_shipping' %}" class="btn btn-pink mt-3"
+                               style="background-color: #EB889E; color: #fff; padding: 10px 20px; border-radius: 30px;">Checkout</a>
                         </div>
                     </div>
                 </div>

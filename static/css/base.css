@@ -82,7 +82,7 @@ nav ul li a:hover {
 }
 
 .flex-grow-1 {
-    display: flex;
+    display: grid;
 }
 /* Hero text */
 .hero-text {
