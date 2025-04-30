@@ -36,7 +36,6 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 20px 50px;
-    background: rgba(0, 0, 0, 0.6); /* semi-transparent navbar */
     z-index: 999;
 }
 
@@ -82,8 +81,12 @@ nav ul li a:hover {
     color: #d63384;
 }
 
+.flex-grow-1 {
+    display: flex;
+}
 /* Hero text */
 .hero-text {
+    text-align: center;
     max-width: 800px;
     margin: auto;
     z-index: 1;
