@@ -18,51 +18,127 @@
 </head>
 <body>
 <div class="d-flex flex-column min-vh-100">
-    <header>
-        <h1 class="logo">My Bloom</h1>
-        <nav>
-            <ul>
+    <header class="position-fixed top-0 w-100 z-3 bg-dark" style="height: 80px;">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'img/logo.png' %}" alt="My Bloom" style="height: 60px; margin: 10px 60px">
+        </a>
+
+        <!-- Toggle Button -->
+        <button class="navbar-toggler d-block d-md-none text-white border-0 ms-auto" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
+            <i class="fa fa-bars fa-xl text-white"></i>
+        </button>
+
+        <div class="d-none d-md-flex align-items-center justify-content-between w-100">
+            <ul class="nav">
                 {% if user.is_authenticated and user.role == "admin" %}
-                    <li><a href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
-                    <li><a href="{% url 'product_create' %}">{% trans "Add Product" %}</a></li>
+                    <li class="nav-item"><a class="nav-link text-white"
+                                            href="{% url 'admin_dashboard' %}">{% trans "Dashboard" %}</a></li>
+                    <li class="nav-item"><a class="nav-link text-white"
+                                            href="{% url 'product_create' %}">{% trans "Add Product" %}</a></li>
                 {% else %}
-                    <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'home' %}">{% trans "Home" %}</a>
+                    </li>
                 {% endif %}
-                <li><a href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
-                <li><a href="{% url 'yourwish_tabs' %}">{% trans "YourWish" %}</a></li>
+                <li class="nav-item"><a class="nav-link text-white"
+                                        href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
+                <li class="nav-item"><a class="nav-link text-white"
+                                        href="{% url 'yourwish_tabs' %}">{% trans "YourWish" %}</a></li>
             </ul>
-        </nav>
-        <div class="icons">
-            {% if user.is_authenticated %}
-                <a href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
-                <a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i></a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i
-                        class="fa-solid fa-right-from-bracket"></i></a>
-            {% else %}
-                <a href="{% url 'account_login' %}"><i class="fa fa-user"></i></a>
-                <a href="{% url 'account_signup' %}"><i class="fa fa-user-plus"></i></a>
-            {% endif %}
-            <div class="dropdown d-inline">
-                <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
-                        class="fa-solid fa-language"></i></a>
-                <ul class="dropdown-menu">
-                    {% for lang in languages %}
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="language" value="{{ lang.code }}">
-                                <button type="submit"
-                                        class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
-                                    {{ lang.name_local }}
-                                </button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <div class="icons">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'view_cart' %}" class="text-white me-3"><i
+                            class="fa-solid fa-cart-shopping"></i></a>
+                    <a href="{% url 'profile' %}" class="text-white me-3"><i class="fa-regular fa-user"></i></a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="text-white"><i
+                            class="fa-solid fa-right-from-bracket"></i></a>
+                {% else %}
+                    <a href="{% url 'account_login' %}" class="text-white me-3"><i class="fa fa-user"></i></a>
+                    <a href="{% url 'account_signup' %}" class="text-white"><i class="fa fa-user-plus"></i></a>
+                {% endif %}
+                <div class="dropdown d-inline ms-3">
+                    <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
+                            class="fa-solid fa-language"></i></a>
+                    <ul class="dropdown-menu">
+                        {% for lang in languages %}
+                            <li>
+                                <form action="{% url 'set_language' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="language" value="{{ lang.code }}">
+                                    <button type="submit"
+                                            class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
+                                        {{ lang.name_local }}
+                                    </button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offcanvas Navigation -->
+        <div class="offcanvas offcanvas-end d-md-none text-bg-dark" tabindex="-1" id="mobileNav"
+             aria-labelledby="mobileNavLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="mobileNavLabel">Menu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <nav>
+                    <ul class="nav flex-column">
+                        {% if user.is_authenticated and user.role == "admin" %}
+                            <li class="nav-item"><a class="nav-link text-white"
+                                                    href="{% url 'admin_dashboard' %}">{% trans "Home" %}</a></li>
+                            <li class="nav-item"><a class="nav-link text-white"
+                                                    href="{% url 'product_create' %}">{% trans "Add Product" %}</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link text-white"
+                                                    href="{% url 'home' %}">{% trans "Home" %}</a></li>
+                        {% endif %}
+                        <li class="nav-item"><a class="nav-link text-white"
+                                                href="{% url 'product_list' %}">{% trans "Products" %}</a></li>
+                        <li class="nav-item"><a class="nav-link text-white"
+                                                href="{% url 'yourwish_tabs' %}">{% trans "YourWish" %}</a></li>
+                    </ul>
+
+                    <div class="icons mt-3">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'view_cart' %}" class="text-white me-3"><i
+                                    class="fa-solid fa-cart-shopping"></i></a>
+                            <a href="{% url 'profile' %}" class="text-white me-3"><i class="fa-regular fa-user"></i></a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="text-white"><i
+                                    class="fa-solid fa-right-from-bracket"></i></a>
+                        {% else %}
+                            <a href="{% url 'account_login' %}" class="text-white me-3"><i class="fa fa-user"></i></a>
+                            <a href="{% url 'account_signup' %}" class="text-white"><i class="fa fa-user-plus"></i></a>
+                        {% endif %}
+
+                        <div class="dropdown d-inline ms-3">
+                            <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
+                                    class="fa-solid fa-language"></i></a>
+                            <ul class="dropdown-menu">
+                                {% for lang in languages %}
+                                    <li>
+                                        <form action="{% url 'set_language' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="language" value="{{ lang.code }}">
+                                            <button type="submit"
+                                                    class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
+                                                {{ lang.name_local }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
             </div>
         </div>
     </header>
-    <main class="flex-grow-1">
+    <main class="flex-grow-1" style="padding-top: 80px;">
         {% block content %}{% endblock %}
     </main>
     <footer class="bg-dark text-white text-center p-4">

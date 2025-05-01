@@ -39,6 +39,11 @@ header {
     z-index: 999;
 }
 
+.bg-dark {
+    background: rgba(10, 10, 10, 0.7) !important;
+    backdrop-filter: blur(8px);
+}
+
 .logo {
     font-size: 40px;
     font-family: 'Caveat';
@@ -47,6 +52,7 @@ header {
 }
 
 nav ul {
+    margin: 0;
     list-style: none;
     display: flex;
     gap: 60px;
