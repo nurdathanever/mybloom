@@ -38,21 +38,27 @@
                                             <button type="button" class="minus-btn"
                                                     data-id="{{ flower.id }}">-
                                             </button>
-                                            <span class="mx-2" id="qty-{{ flower.id }}">0</span>
+                                            <input type="number"
+                                                   class="form-control form-control-sm text-center bg-transparent text-white border-0 quantity-input"
+                                                   id="qty-{{ flower.id }}" value="0" data-id="{{ flower.id }}" min="0"
+                                                   style="width: 50px;">
                                             <button type="button" class="plus-btn"
                                                     data-id="{{ flower.id }}">+
                                             </button>
                                         </div>
                                         <input type="hidden" name="flowers" value="{{ flower.id }}"
                                                id="input-{{ flower.id }}" disabled>
-                                        <p class="flower-price text-secondary" id="price-{{ flower.id }}" data-price="{{ flower.price|floatformat }}">{{ flower.price|floatformat }} ₸</p>
+                                        <p class="flower-price text-secondary" id="price-{{ flower.id }}"
+                                           data-price="{{ flower.price|floatformat }}">{{ flower.price|floatformat }}
+                                            ₸</p>
                                     </div>
                                 </div>
                             </div>
                         {% endfor %}
                     </div>
                     <div class="text-end">
-                        <button type="button" class="btn btn-primary mt-3" onclick="nextTab('accessories-tab')">Next</button>
+                        <button type="button" class="btn btn-primary mt-3" onclick="nextTab('accessories-tab')">Next
+                        </button>
                     </div>
                 </form>
             </div>
@@ -64,8 +70,10 @@
                     <div class="row mb-4">
                         {% for paper in papers %}
                             <div class="col-md-3">
-                                <label class="card h-100 text-center shadow-sm border-0 accessory-card" style="transition: all 0.3s ease; cursor: pointer;">
-                                    <input type="radio" name="wrapping_paper" value="{{ paper.id }}" class="d-none" autocomplete="off">
+                                <label class="card h-100 text-center shadow-sm border-0 accessory-card"
+                                       style="transition: all 0.3s ease; cursor: pointer;">
+                                    <input type="radio" name="wrapping_paper" value="{{ paper.id }}" class="d-none"
+                                           autocomplete="off">
                                     <img src="{{ paper.image.url }}" class="card-img-top img-fluid"
                                          style="object-fit: cover; border-radius: 10px" alt="{{ paper.name }}">
                                     <div class="card-body p-2">
@@ -81,8 +89,10 @@
                     <div class="row mb-4">
                         {% for ribbon in ribbons %}
                             <div class="col-md-3">
-                                <label class="card h-100 text-center shadow-sm border-0 accessory-card" style="transition: all 0.3s ease; cursor: pointer;">
-                                    <input type="radio" name="ribbon" value="{{ ribbon.id }}" class="d-none" autocomplete="off">
+                                <label class="card h-100 text-center shadow-sm border-0 accessory-card"
+                                       style="transition: all 0.3s ease; cursor: pointer;">
+                                    <input type="radio" name="ribbon" value="{{ ribbon.id }}" class="d-none"
+                                           autocomplete="off">
                                     <img src="{{ ribbon.image.url }}" class="card-img-top img-fluid"
                                          style="object-fit: cover; border-radius: 10px" alt="{{ ribbon.name }}">
                                     <div class="card-body p-2">
@@ -94,7 +104,8 @@
                         {% endfor %}
                     </div>
                     <div class="text-end">
-                        <button type="button" class="btn btn-primary mt-3" onclick="nextTab('postcard-tab')">Next</button>
+                        <button type="button" class="btn btn-primary mt-3" onclick="nextTab('postcard-tab')">Next
+                        </button>
                     </div>
                 </form>
             </div>
@@ -104,7 +115,8 @@
                     {% csrf_token %}
                     <div class="card-options row">
                         <div class="col-md-2">
-                            <label class="card h-100 text-center shadow-sm border-0" style="transition: all 0.3s ease; cursor: pointer;">
+                            <label class="card h-100 text-center shadow-sm border-0"
+                                   style="transition: all 0.3s ease; cursor: pointer;">
                                 <input type="radio" name="postcard_id" value="" class="d-none" autocomplete="off">
                                 <div class="card-body p-4 d-flex align-items-center justify-content-center"
                                      style="height: 180px;">
@@ -114,8 +126,10 @@
                         </div>
                         {% for card in cards %}
                             <div class="col-md-2">
-                                <label class="card h-100 text-center shadow-sm border-0" style="transition: all 0.3s ease; cursor: pointer;">
-                                    <input type="radio" name="postcard_id" value="{{ card.id }}" class="d-none" autocomplete="off">
+                                <label class="card h-100 text-center shadow-sm border-0"
+                                       style="transition: all 0.3s ease; cursor: pointer;">
+                                    <input type="radio" name="postcard_id" value="{{ card.id }}" class="d-none"
+                                           autocomplete="off">
                                     <img src="{{ card.image.url }}" alt="Postcard {{ card.id }}"
                                          class="card-img-top img-fluid"
                                          style="object-fit: cover; border-radius: 10px" alt="{{ card.name }}">
@@ -151,6 +165,7 @@
                 sessionStorage.setItem("activeTab", tabId);
             }
         }
+
         // Track active tab from backend via sessionStorage
         const selectedFlowers = {};
         let currentTab = sessionStorage.getItem("activeTab") || "flowers-tab";
@@ -186,9 +201,9 @@
         });
 
         function preloadQuantities() {
-            document.querySelectorAll(".quantity-controls span[id^='qty-']").forEach(span => {
-                const id = span.id.replace('qty-', '');
-                const qty = parseInt(span.textContent) || 0;
+            document.querySelectorAll(".quantity-controls input[id^='qty-']").forEach(input => {
+                const id = input.id.replace('qty-', '');
+                const qty = parseInt(input.value) || 0;
                 selectedFlowers[id] = qty;
             });
         }
@@ -207,7 +222,7 @@
         function plusClickHandler(e) {
             const id = e.target.dataset.id;
             selectedFlowers[id] = (selectedFlowers[id] || 0) + 1;
-            document.getElementById("qty-" + id).textContent = selectedFlowers[id];
+            document.getElementById("qty-" + id).value = selectedFlowers[id];
             console.log(`Plus clicked: ID=${id}, Quantity=${selectedFlowers[id]}`);
             updateEstimatedPrice();
         }
@@ -215,10 +230,24 @@
         function minusClickHandler(e) {
             const id = e.target.dataset.id;
             selectedFlowers[id] = Math.max((selectedFlowers[id] || 0) - 1, 0);
-            document.getElementById("qty-" + id).textContent = selectedFlowers[id];
+            document.getElementById("qty-" + id).value = selectedFlowers[id];
             console.log(`Minus clicked: ID=${id}, Quantity=${selectedFlowers[id]}`);
             updateEstimatedPrice();
         }
+
+        // Listen for manual input changes in quantity fields
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".quantity-input").forEach(input => {
+                input.addEventListener("input", function () {
+                    const id = this.dataset.id;
+                    let val = parseInt(this.value);
+                    if (!isNaN(val) && val >= 0) {
+                        selectedFlowers[id] = val;
+                        updateEstimatedPrice();
+                    }
+                });
+            });
+        });
 
         document.querySelectorAll("input[name='wrapping_paper'], input[name='ribbon'], input[name='postcard_id'], textarea[name='message']").forEach(input => {
             input.addEventListener("change", saveToSession);
@@ -239,12 +268,15 @@
                 const qty = selectedFlowers[id] || 0;
                 const cardTotal = qty * price;
                 el.innerText = (qty > 0 ? cardTotal.toFixed(0) : price.toFixed(0)) + " ₸";
+                // GLOWING LOGIC
                 if (qty > 0) {
                     el.classList.remove("text-secondary");
                     el.classList.add("text-white");
+                    document.getElementById("qty-" + id).closest(".card").querySelector("img").classList.add("glowing");
                 } else {
                     el.classList.remove("text-white");
                     el.classList.add("text-secondary");
+                    document.getElementById("qty-" + id).closest(".card").querySelector("img").classList.remove("glowing");
                 }
             });
             Object.entries(selectedFlowers).forEach(([id, qty]) => {
@@ -311,24 +343,40 @@
         .card {
             color: white;
         }
+
         .flower-card:hover {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
             transform: scale(1.02);
         }
+
+        .glowing {
+            box-shadow: 0 0 12px #EB889E;
+            border: 2px solid #EB889E;
+            border-radius: 10px;
+        }
+
+        .flower-card.glowing {
+            box-shadow: 0 0 12px #EB889E;
+            border-color: #EB889E;
+        }
+
 
         .accessory-card:hover,
         .card-options .card:hover {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
             transform: scale(1.02);
         }
+
         .flower-card, .accessory-card, .card-options .card {
             background: none !important;
             border: 1px solid rgba(255, 255, 255, 0.3);
             font-family: 'Cormorant Unicase', serif;
         }
+
         .flower-card .card-title, .accessory-card .card-title, .card-options .card-title {
             font-family: 'Cormorant Unicase', serif;
         }
+
         .quantity-controls button {
             background: none;
             border: none;
@@ -336,11 +384,13 @@
             font-family: 'Cormorant Unicase', serif;
             padding: 2px 10px;
         }
+
         .quantity-controls button:hover {
             background: #EB889E;
             border-color: #EB889E;
             color: #fff;
         }
+
         #wishTabs {
             position: sticky;
             top: 80px;
@@ -348,15 +398,18 @@
             background: rgba(67, 67, 67, 0.4);
             backdrop-filter: blur(8px);
         }
+
         .nav-link {
             color: #fff;
         }
+
         /* Highlight selected accessory or postcard */
         input[type="radio"]:checked + img,
         input[type="radio"]:checked + .card-body {
             border: 2px solid #EB889E;
             box-shadow: 0 0 10px #EB889E;
         }
+
         label.card input[type="radio"]:checked ~ img,
         label.card input[type="radio"]:checked ~ .card-body {
             border: 2px solid #EB889E;
