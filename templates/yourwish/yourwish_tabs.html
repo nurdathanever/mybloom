@@ -56,10 +56,6 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-primary mt-3" onclick="nextTab('accessories-tab')">Next
-                        </button>
-                    </div>
                 </form>
             </div>
 
@@ -103,10 +99,6 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-primary mt-3" onclick="nextTab('postcard-tab')">Next
-                        </button>
-                    </div>
                 </form>
             </div>
 
@@ -144,16 +136,29 @@
                         <label class="form-label text-light">Write your message</label>
                         <textarea name="message" class="form-control" rows="3" placeholder="Write here..."></textarea>
                     </div>
-                    <div class="text-end mt-4">
-                        <input type="hidden" name="step" value="postcard">
-                        <input type="hidden" name="flowers_data" id="flowers_data_input">
-                        <button type="submit" class="btn btn-primary">Bloom it!</button>
-                    </div>
+                    <input type="hidden" name="wrapping_paper" id="input-wrapping-paper">
+                    <input type="hidden" name="ribbon" id="input-ribbon">
+                    <input type="hidden" name="flowers_data" id="flowers_data_input">
                 </form>
             </div>
         </div>
         <div class="mt-5 text-end text-white">
             <h4>Estimated Price: <span id="estimated-price">0</span> ₸</h4>
+        </div>
+        <div class="fixed-bottom d-flex justify-content-center mb-5 pb-5">
+            <button class="btn btn-light mx-2 px-4 py-2 rounded-pill fw-bold" onclick="generateRandom()">Random</button>
+            <button class="btn btn-primary mx-2 px-4 py-2 rounded-pill fw-bold" onclick="submitWish()">Bloom it!
+            </button>
+        </div>
+        <div id="loadingModal" class="modal fade" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white text-center py-5 d-flex flex-column justify-content-center align-items-center">
+                    <h4 class="mb-4">Generating your bouquet...</h4>
+                    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -171,6 +176,7 @@
         let currentTab = sessionStorage.getItem("activeTab") || "flowers-tab";
 
         document.addEventListener("DOMContentLoaded", function () {
+            // Set active tab
             const tabTrigger = new bootstrap.Tab(document.getElementById(currentTab));
             if (tabTrigger) tabTrigger.show();
 
@@ -193,6 +199,19 @@
             setupQuantityButtons();
             updateEstimatedPrice();
 
+            // Listen for manual input changes in quantity fields
+            document.querySelectorAll(".quantity-input").forEach(input => {
+                input.addEventListener("input", function () {
+                    const id = this.dataset.id;
+                    let val = parseInt(this.value);
+                    if (!isNaN(val) && val >= 0) {
+                        selectedFlowers[id] = val;
+                        updateEstimatedPrice();
+                    }
+                });
+            });
+
+            // Re-setup quantity buttons on tab change
             document.querySelectorAll('#wishTabs button[data-bs-toggle="tab"]').forEach(tab => {
                 tab.addEventListener('shown.bs.tab', function () {
                     setupQuantityButtons();
@@ -235,19 +254,6 @@
             updateEstimatedPrice();
         }
 
-        // Listen for manual input changes in quantity fields
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".quantity-input").forEach(input => {
-                input.addEventListener("input", function () {
-                    const id = this.dataset.id;
-                    let val = parseInt(this.value);
-                    if (!isNaN(val) && val >= 0) {
-                        selectedFlowers[id] = val;
-                        updateEstimatedPrice();
-                    }
-                });
-            });
-        });
 
         document.querySelectorAll("input[name='wrapping_paper'], input[name='ribbon'], input[name='postcard_id'], textarea[name='message']").forEach(input => {
             input.addEventListener("change", saveToSession);
@@ -304,14 +310,27 @@
                 message: document.querySelector("textarea[name='message']")?.value,
             };
             sessionStorage.setItem("yourwishData", JSON.stringify(data));
+            // Also set the hidden flowers_data input if present
+            const flowersInput = document.getElementById("flowers_data_input");
+            if (flowersInput) {
+                flowersInput.value = JSON.stringify(data);
+            }
         }
 
         // Inject data into final form
         document.getElementById("postcardForm").addEventListener("submit", function (e) {
-            const data = sessionStorage.getItem("yourwishData");
-            if (data) {
-                document.getElementById("flowers_data_input").value = data;
-            }
+            // Save latest session data before using it
+            saveToSession();
+            // Pull values from latest DOM state
+            const data = {
+                flowers: selectedFlowers,
+                wrapping_paper: document.querySelector("input[name='wrapping_paper']:checked")?.value,
+                ribbon: document.querySelector("input[name='ribbon']:checked")?.value,
+                postcard_id: document.querySelector("input[name='postcard_id']:checked")?.value,
+                message: document.querySelector("textarea[name='message']")?.value,
+            };
+            sessionStorage.setItem("yourwishData", JSON.stringify(data));
+            document.getElementById("flowers_data_input").value = JSON.stringify(data);
             Object.entries(selectedFlowers).forEach(([id, qty]) => {
                 const input = document.createElement("input");
                 input.type = "hidden";
@@ -322,22 +341,79 @@
 
             const wrapping = document.querySelector("input[name='wrapping_paper']:checked")?.value;
             if (wrapping) {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = "wrapping_paper";
-                input.value = wrapping;
-                this.appendChild(input);
+                document.getElementById("input-wrapping-paper").value = wrapping;
             }
 
             const ribbon = document.querySelector("input[name='ribbon']:checked")?.value;
             if (ribbon) {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = "ribbon";
-                input.value = ribbon;
-                this.appendChild(input);
+                document.getElementById("input-ribbon").value = ribbon;
             }
         });
+
+        function generateRandom() {
+            // Random flower selection
+            document.querySelectorAll(".quantity-input").forEach(input => {
+                const id = input.dataset.id;
+                const val = Math.floor(Math.random() * 5); // 0–4 flowers
+                input.value = val;
+                selectedFlowers[id] = val;
+            });
+
+            // Random accessories
+            const wrapRadios = document.querySelectorAll("input[name='wrapping_paper']");
+            const ribbonRadios = document.querySelectorAll("input[name='ribbon']");
+            const postcardRadios = document.querySelectorAll("input[name='postcard_id']");
+
+            if (wrapRadios.length) wrapRadios[Math.floor(Math.random() * wrapRadios.length)].checked = true;
+            if (ribbonRadios.length) ribbonRadios[Math.floor(Math.random() * ribbonRadios.length)].checked = true;
+            if (postcardRadios.length) postcardRadios[Math.floor(Math.random() * postcardRadios.length)].checked = true;
+
+            updateEstimatedPrice();
+            saveToSession();
+        }
+
+        function submitWish() {
+            const hasFlowers = Object.values(selectedFlowers).some(val => val > 0);
+            const hasAccessory = document.querySelector("input[name='wrapping_paper']:checked") && document.querySelector("input[name='ribbon']:checked");
+            const hasPostcard = document.querySelector("input[name='postcard_id']:checked");
+
+            if (!hasFlowers || !hasAccessory || !hasPostcard) {
+                showFloatingAlert("Please select flowers, accessories, and postcard before blooming.");
+                return;
+            }
+
+            // Ensure latest values including message are included
+            saveToSession();
+
+            // Update flowers_data_input again with all fields
+            const message = document.querySelector("textarea[name='message']")?.value;
+            console.log("Message:", message);
+            const flowersInput = document.getElementById("flowers_data_input");
+            if (flowersInput) {
+                const sessionData = {
+                    flowers: selectedFlowers,
+                    wrapping_paper: document.querySelector("input[name='wrapping_paper']:checked")?.value,
+                    ribbon: document.querySelector("input[name='ribbon']:checked")?.value,
+                    postcard_id: document.querySelector("input[name='postcard_id']:checked")?.value,
+                    message: message
+                };
+                flowersInput.value = JSON.stringify(sessionData);
+            }
+
+            // Show loading modal
+            const loadingModal = new bootstrap.Modal(document.getElementById("loadingModal"));
+            loadingModal.show();
+            document.getElementById("postcardForm").submit();
+        }
+
+        function showFloatingAlert(msg) {
+            let alert = document.createElement("div");
+            alert.className = "alert alert-warning position-fixed bottom-0 start-50 translate-middle-x mb-4 shadow";
+            alert.style.zIndex = 9999;
+            alert.innerText = msg;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
     </script>
     <style>
         .card {
@@ -414,6 +490,10 @@
         label.card input[type="radio"]:checked ~ .card-body {
             border: 2px solid #EB889E;
             box-shadow: 0 0 10px #EB889E;
+        }
+
+        .container.my-5 {
+            padding-bottom: 120px;
         }
     </style>
 {% endblock %}

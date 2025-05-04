@@ -75,10 +75,12 @@ def yourwish_tabs(request):
 def yourwish_bloomit(request):
     flowers_data_str = request.POST.get("flowers_data", "{}")
     flowers_data = json.loads(flowers_data_str)
+    print(flowers_data)
 
     selected_flowers = flowers_data.get("flowers", {})
     wrapping_paper_id = flowers_data.get("wrapping_paper")
     ribbon_id = flowers_data.get("ribbon")
+    message = flowers_data.get("message", "")
 
     wrapping = Product.objects.filter(id=wrapping_paper_id, category="wrapping_paper").first()
     ribbon = Product.objects.filter(id=ribbon_id, category="ribbon").first()
@@ -116,6 +118,7 @@ def yourwish_bloomit(request):
         request.session["flowers"] = selected_flowers
         request.session["wrapping_paper"] = wrapping_paper_id
         request.session["ribbon"] = ribbon_id
+        request.session["message"] = message
 
     return render(request, "yourwish/bloom_result.html", {
         "image_url": f"/media/ai_bouquets/preview_{request.user.id}_{timestamp}.jpeg"
@@ -130,7 +133,8 @@ def yourwish_confirm_bouquet(request):
     wrapping_paper_id = int(request.session.get("wrapping_paper")) if request.session.get("wrapping_paper") else None
     ribbon_id = int(request.session.get("ribbon")) if request.session.get("ribbon") else None
     postcard_id = int(request.session.get("postcard_id")) if request.session.get("postcard_id") else None
-    message = request.session.get("message", "")
+    message = request.session.get("message")
+    print(f"message: {message}")
     bouquet_image = request.session.get("ai_bouquet_image", "ai_bouquets/sample_bouquet.jpeg")
 
     import random

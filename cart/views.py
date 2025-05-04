@@ -13,12 +13,14 @@ def view_cart(request):
         bouquet = item.custom_bouquet
         flowers = CustomBouquetFlower.objects.filter(bouquet=bouquet).select_related("product")
         accessories = CustomBouquetAccessory.objects.filter(bouquet=bouquet).select_related("product")
+        message = bouquet.greeting_message if bouquet else None
         enriched_items.append({
             "item": item,
             "image": bouquet.image.url if bouquet and bouquet.image else None,
             "date": item.added_at,
             "flowers": flowers,
             "accessories": accessories,
+            "message": message,
         })
     print(enriched_items)
     total = sum([item["item"].total_price() for item in enriched_items])

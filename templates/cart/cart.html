@@ -5,6 +5,7 @@
         body {
             color: #000000;
         }
+
         .btn-outline-dark {
             border: 1px solid #333;
             color: #333;
@@ -13,6 +14,7 @@
         .minus-btn {
             padding: 0.2rem 0.5rem;
         }
+
         .plus-btn {
             padding: 0.2rem 0.5rem;
         }
@@ -106,6 +108,11 @@
                                                 None
                                             {% endfor %}
                                         </p>
+                                        {% if cart_item.item.custom_bouquet.greeting_message %}
+                                            <p class="mb-1">
+                                                <strong>Message:</strong> {{ cart_item.item.custom_bouquet.greeting_message }}
+                                            </p>
+                                        {% endif %}
                                         <p class="mb-1">{{ cart_item.item.custom_bouquet.total_price|floatformat:0 }}
                                             KZT</p>
                                     </div>
