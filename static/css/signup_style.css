@@ -184,7 +184,7 @@ p {
 .signup-section {
     flex: 1;
     width: 50%;
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://s3-alpha-sig.figma.com/img/d802/0a06/9703d57575d0824652f6fb13ee3dbb35?Expires=1740355200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=YZB~8Pi7z-lCeBuHSZ4l7AOLibSGpG6wsqZEp37oGFSf83tMHol~6SXs23Jag1tLkh4l3ArcWUNDUa1tC8agkoMFl0jVY1u5ypyXqnNbOLNhgKsQMuaVnmn79fQarl7nrK-tj5ucCmB9M8FbP0YgElJRueLKD7RHYOZvFfwTVYdOfrWIk6wGUc-bw~bfFvMplzyr0H24nxyI0x-kKrak4Vf4vDQbATaRCbI0isIGvRmyZx77E2cWJgyn1QORdmvq5uvAqMtn1b6dBWtpuROXhj-P~N0HnreaezYJBBbxbsLHO6V43N997QuyScyA1r2uiklyQ1r4MBChWLyylEqdhQ__')  right/145% no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../img/home_background.jpg')  no-repeat center center/cover;
     display: flex;
     flex-direction: column;
     align-items: center;
