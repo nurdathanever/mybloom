@@ -8,7 +8,7 @@ User = get_user_model()
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ["username", "email", "password1", "password2"]
+        fields = ["username", "first_name", "last_name", "email", "password1", "password2"]
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -19,9 +19,11 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs.update({'placeholder': 'Enter your username'})
-        self.fields['email'].widget.attrs.update({'placeholder': 'Enter your email'})
-        self.fields['password1'].widget.attrs.update({'placeholder': 'Enter your password'})
+        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
+        self.fields['first_name'].widget.attrs['placeholder'] = 'Firstname'
+        self.fields['last_name'].widget.attrs['placeholder'] = 'Lastname'
+        self.fields['email'].widget.attrs.update({'placeholder': 'Email'})
+        self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm your password'})
         for field in self.fields.values():
             field.widget.attrs.update({"class": "form-control"})
@@ -37,7 +39,7 @@ class ProfileUpdateForm(forms.ModelForm):
     """Form to update user profile."""
     class Meta:
         model = User
-        fields = ["username", "email", "phone", "city", "street", "building", "apartment", "photo"]
+        fields = ["username", "first_name", "last_name", "email", "phone", "city", "street", "building", "apartment", "photo"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
