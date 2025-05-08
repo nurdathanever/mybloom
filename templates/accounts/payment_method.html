@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Payment Method{% endblock %}
+{% block content %}
+    <style>
+        body {
+            color: #000000;
+        }
+
+        .payment-container {
+            display: flex;
+            background: white;
+            min-height: 80vh;
+        }
+
+        .sidebar {
+            width: 20%;
+            background-color: #eb889e;
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .sidebar .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .sidebar ul li {
+            font-size: 22px;
+            padding: 10px 0;
+            border-bottom: 1px dotted white;
+            cursor: pointer;
+        }
+
+        .sidebar ul li.active {
+            font-weight: bold;
+            color: #fff;
+            font-size: 26px;
+        }
+
+        .payment-main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .payment-main h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .payment-main h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card-box {
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            background: linear-gradient(135deg, #f6a3c2, #b186f3);
+            width: 380px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-box.alt {
+            background: linear-gradient(135deg, #fff, #d6d6f7);
+            color: #333;
+        }
+
+        .card-box .number {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .card-box .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .card-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+        }
+
+        .card-form input {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: #f8c8d1;
+            font-size: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .add-card-btn {
+            background-color: #e2809d;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            align-self: flex-start;
+            box-shadow: 0 4px 10px rgba(214, 102, 143, 0.4);
+        }
+
+        .add-card-btn:hover {
+            background-color: #d26c8a;
+        }
+    </style>
+
+    <div class="payment-container">
+        <div class="sidebar">
+            <div class="profile-image">
+                <img src="
+                        {% if user.photo %}{{ user.photo.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}"
+                     alt="Profile">
+            </div>
+            <h3>{{ user.get_full_name }}</h3>
+            <ul>
+                <li><a href="{% url 'profile' %}" class="text-white">Profile</a></li>
+                <li class="active"><a href="{% url 'payment_method' %}" class="text-white">Payment method</a></li>
+                <li><a href="{% url 'history' %}" class="text-white">History</a></li>
+                <li><a href="{% url 'bonuses' %}" class="text-white">My Bonuses</a></li>
+                <li><a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="text-white"><i
+                        class="fa-solid fa-right-from-bracket"></i></a></li>
+            </ul>
+        </div>
+
+        <div class="payment-main">
+            <h1>Payment method</h1>
+            <h3>Select your card</h3>
+
+            <div class="card-list">
+                {% for card in cards %}
+                    <div class="card-box {% if forloop.counter|divisibleby:2 %}alt{% endif %}">
+                        <div class="number">{{ card.card_number }}</div>
+                        <div class="meta">
+                            <span>{{ card.name }}</span>
+                            <span>{{ card.expiry }}</span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No cards saved yet.</p>
+                {% endfor %}
+            </div>
+
+            <h3>Add new card</h3>
+            <form method="post" class="card-form">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Name on Card">
+                <input type="text" name="card_number" placeholder="Card Number">
+                <div class="form-row">
+                    <input type="text" name="expiry" placeholder="MM/YY">
+                    <input type="text" name="cvv" placeholder="CVV">
+                </div>
+                <button type="submit" class="add-card-btn">
+                    <i class="fas fa-credit-card" style="margin-right: 8px;"></i>Add New Card
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

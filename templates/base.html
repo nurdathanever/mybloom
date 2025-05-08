@@ -56,24 +56,24 @@
                     <a href="{% url 'account_login' %}" class="text-white me-3"><i class="fa fa-user"></i></a>
                     <a href="{% url 'account_signup' %}" class="text-white"><i class="fa fa-user-plus"></i></a>
                 {% endif %}
-                <div class="dropdown d-inline ms-3">
-                    <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i
-                            class="fa-solid fa-language"></i></a>
-                    <ul class="dropdown-menu">
-                        {% for lang in languages %}
-                            <li>
-                                <form action="{% url 'set_language' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="language" value="{{ lang.code }}">
-                                    <button type="submit"
-                                            class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">
-                                        {{ lang.name_local }}
-                                    </button>
-                                </form>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+{#                <div class="dropdown d-inline ms-3">#}
+{#                    <a href="#" class="dropdown-toggle text-white" data-bs-toggle="dropdown"><i#}
+{#                            class="fa-solid fa-language"></i></a>#}
+{#                    <ul class="dropdown-menu">#}
+{#                        {% for lang in languages %}#}
+{#                            <li>#}
+{#                                <form action="{% url 'set_language' %}" method="post">#}
+{#                                    {% csrf_token %}#}
+{#                                    <input type="hidden" name="language" value="{{ lang.code }}">#}
+{#                                    <button type="submit"#}
+{#                                            class="dropdown-item {% if lang.code == LANGUAGE_CODE %}active{% endif %}">#}
+{#                                        {{ lang.name_local }}#}
+{#                                    </button>#}
+{#                                </form>#}
+{#                            </li>#}
+{#                        {% endfor %}#}
+{#                    </ul>#}
+{#                </div>#}
             </div>
         </div>
 

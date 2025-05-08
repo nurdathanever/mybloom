@@ -13,11 +13,15 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
+    order_number = models.CharField(max_length=20, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    street = models.CharField(max_length=100, blank=True, null=True)
+    building = models.CharField(max_length=10, blank=True, null=True)
+    apartment = models.CharField(max_length=10, blank=True, null=True)
     delivery_method = models.CharField(max_length=50, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
     delivery_date = models.DateField(blank=True, null=True)

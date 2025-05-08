@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}History{% endblock %}
+{% block content %}
+    <style>
+        body {
+            color: #000000;
+        }
+
+        .history-container {
+            display: flex;
+            background: white;
+            min-height: 80vh;
+        }
+
+        .sidebar {
+            width: 20%;
+            background: #eb889e;
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .sidebar .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .sidebar ul li {
+            font-size: 22px;
+            padding: 10px 0;
+            border-bottom: 1px dotted white;
+            cursor: pointer;
+        }
+
+        .sidebar ul li.active {
+            font-weight: bold;
+            color: #fff;
+            font-size: 26px;
+        }
+
+        .history-main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .history-main h1 {
+            font-size: 34px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 30px;
+            font-family: 'Cormorant Unicase';
+            margin-bottom: 20px;
+        }
+
+        .filter-tabs span {
+            cursor: pointer;
+        }
+
+        .filter-tabs span.active {
+            color: #eb889e;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-table th, .order-table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .order-status.pending {
+            color: #e59577;
+            font-weight: bold;
+        }
+
+        .order-status.delivered {
+            color: #69a97c;
+            font-weight: bold;
+        }
+
+        .order-status.cancelled {
+            color: #d66;
+            font-weight: bold;
+        }
+
+        .order-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .btn-details {
+            background: #eb889e;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #eb889e;
+            margin-left: auto;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .popup-modal h4 {
+            color: #eb889e;
+            margin-bottom: 10px;
+        }
+
+        .popup-modal p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .popup-modal .btn {
+            padding: 8px 20px;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .popup-modal .btn.cancel {
+            background: white;
+            color: #eb889e;
+            border: 1px solid #eb889e;
+        }
+
+        .popup-modal .btn.confirm {
+            background: #eb889e;
+            color: white;
+            border: none;
+        }
+    </style>
+
+    <div class="history-container">
+        <div class="sidebar">
+            <div class="profile-image">
+                <img src="
+                        {% if user.photo %}{{ user.photo.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}"
+                     alt="Profile">
+            </div>
+            <h3>{{ user.get_full_name }}</h3>
+            <ul>
+                <li><a href="{% url 'profile' %}" class="text-white">Profile</a></li>
+                <li><a href="{% url 'payment_method' %}" class="text-white">Payment method</a></li>
+                <li class="active">History</li>
+                <li><a href="{% url 'bonuses' %}" class="text-white">My Bonuses</a></li>
+                <li><a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="text-white"><i
+                        class="fa-solid fa-right-from-bracket"></i></a></li>
+            </ul>
+        </div>
+
+        <div class="history-main">
+            <h1>History</h1>
+            <div class="filter-tabs">
+                <span class="active">All Order(4)</span>
+                <span>Pending(1)</span>
+                <span>Completed(2)</span>
+                <span>Cancelled(1)</span>
+                <button class="btn-clear" onclick="document.getElementById('clearModal').style.display='flex'">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Details</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>
+                            <img src="{{ order.image }}"
+                                 class="order-img"> {{ order.title }}<br><small>#{{ order.order.order_number }}</small>
+                        </td>
+                        <td class="order-status {{ order.order.status|lower }}">{{ order.order.status }}</td>
+                        <td>{{ order.order.total }} KZT</td>
+                        <td>
+                            <button class="btn-details" onclick="showOrderDetails({{ order.order.id }})">Order Details</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="popup-overlay" id="orderDetailsModal" style="display: none;">
+            <div class="popup-modal" style="max-width: 700px; text-align: left;">
+                <h4>Order Details</h4>
+                <div id="orderDetailsContent"></div>
+                <button class="btn cancel" onclick="document.getElementById('orderDetailsModal').style.display='none'">Close</button>
+            </div>
+        </div>
+
+    <!-- Modal -->
+    <div class="popup-overlay" id="clearModal">
+        <div class="popup-modal">
+            <h4>This action cannot be undone</h4>
+            <p>Are you sure you want to clear your order history?</p>
+            <button class="btn cancel" onclick="document.getElementById('clearModal').style.display='none'">Cancel
+            </button>
+            <button class="btn confirm">Confirm</button>
+        </div>
+    </div>
+<script>
+function showOrderDetails(orderId) {
+    fetch(`/orders/api/detail/${orderId}/`)
+        .then(res => res.json())
+        .then(data => {
+            let html = `
+                <div style="padding: 20px; font-size: 15px; border: 1px solid #ddd; border-radius: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                        <div>Order Number<br><span style="font-weight: normal;">#${data.order_number}</span></div>
+                        <div>Order Date<br><span style="font-weight: normal;">${data.date}</span></div>
+                        <div>Status<br><span class="order-status ${data.status.toLowerCase()}">${data.status}</span></div>
+                        <div>Ship To<br><span style="font-weight: normal;">${data.address}</span></div>
+                    </div>
+                    <hr style="margin: 20px 0;">
+                    ${data.items.map(item => `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <div style="display: flex;">
+                                <img src="${item.image}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover; margin-right: 15px;">
+                                <span>${item.name}</span>
+                            </div>
+                            <div>${item.price} KZT</div>
+                        </div>
+                    `).join('')}
+                    <hr style="margin: 20px 0;">
+                    <div>Shipping: ${data.shipping} KZT</div>
+                    <div>Total: ${data.total} KZT</div>
+                    <div style="text-align: right; color: #eb889e;">Cashback ${data.cashback_percent}%</div>
+                </div>
+            `;
+            document.getElementById('orderDetailsContent').innerHTML = html;
+            document.getElementById('orderDetailsModal').style.display = 'flex';
+        });
+}
+</script>
+{% endblock %}

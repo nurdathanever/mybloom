@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Bonuses{% endblock %}
+{% block content %}
+    <style>
+        body {
+            color: #000000;
+        }
+
+        .bonus-container {
+            display: flex;
+            background: white;
+            min-height: 80vh;
+        }
+
+        .sidebar {
+            width: 20%;
+            background: #eb889e;
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .sidebar .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .sidebar ul li {
+            font-size: 22px;
+            padding: 10px 0;
+            border-bottom: 1px dotted white;
+            cursor: pointer;
+        }
+
+        .sidebar ul li.active {
+            font-weight: bold;
+            color: #fff;
+            font-size: 26px;
+        }
+
+        .bonus-main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .bonus-main h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .bonus-main h3 {
+            font-size: 20px;
+            margin: 20px 0;
+        }
+
+        .points-card {
+            background: linear-gradient(to right, #ef99aa, #b37dbd);
+            padding: 30px;
+            color: white;
+            font-size: 26px;
+            font-family: 'Cormorant Unicase';
+            border-radius: 20px;
+            width: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .rewards-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .reward-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(to bottom right, #f8a1b5, #a878c8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cormorant Unicase';
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .reward-circle.marked {
+            border: 4px solid gold;
+            box-shadow: 0 0 20px gold;
+        }
+    </style>
+
+    <div class="bonus-container">
+        <div class="sidebar">
+            <div class="profile-image">
+                <img src="
+                        {% if user.photo %}{{ user.photo.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}"
+                     alt="Profile">
+            </div>
+            <h3>{{ user.get_full_name }}</h3>
+            <ul>
+                <li><a href="{% url 'profile' %}" class="text-white">Profile</a></li>
+                <li><a href="{% url 'payment_method' %}" class="text-white">Payment method</a></li>
+                <li><a href="{% url 'history' %}" class="text-white">History</a></li>
+                <li class="active">My Bonuses</li>
+                <li><a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="text-white"><i
+                        class="fa-solid fa-right-from-bracket"></i></a></li>
+            </ul>
+        </div>
+
+        <div class="bonus-main">
+            <h1>My Bonuses</h1>
+            <h3>Watch your Rewards Bloom!</h3>
+
+            <div class="points-card">
+                <div>
+                    <div><i class="fa fa-gift"></i> Points</div>
+                </div>
+                <div>{{ user.bonus_points }}</div>
+                <div><i class="fa fa-angle-right"></i></div>
+            </div>
+
+            <h3>Bloom It Rewards System</h3>
+            <p>Earn More with Bloom It Rewards!</p>
+
+            <div class="rewards-container">
+                <div class="reward-circle {% if user.total_spent >= 30000 %}marked{% endif %}">
+                    <div>over<br>30 000 KZT</div>
+                    <div>6%</div>
+                    <small>DISCOUNT</small>
+                </div>
+                <div class="reward-circle {% if user.total_spent >= 50000 %}marked{% endif %}">
+                    <div>over<br>50 000 KZT</div>
+                    <div>10%</div>
+                    <small>DISCOUNT</small>
+                </div>
+                <div class="reward-circle {% if user.total_spent >= 80000 %}marked{% endif %}">
+                    <div>over<br>80 000 KZT</div>
+                    <div>15%</div>
+                    <small>DISCOUNT</small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

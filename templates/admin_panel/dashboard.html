@@ -41,7 +41,9 @@
             <tr>
                 <th>Customer</th>
                 <th>Product</th>
-                <th>Delivery Address</th>
+                <th>Delivery street</th>
+                <th>Delivery building</th>
+                <th>Delivery apartment</th>
                 <th>Order Status</th>
             </tr>
             </thead>
@@ -50,7 +52,9 @@
                 <tr>
                     <td>{{ order.user.username }} ({{ order.user.phone }})</td>
                     <td>{{ order.product.name }}</td>
-                    <td>{{ order.address }}</td>
+                    <td>{{ order.street }}</td>
+                    <td>{{ order.building }}</td>
+                    <td>{{ order.apartment }}</td>
                     <td>
                         <form method="post" action="{% url 'update_order_status' order.id %}">
                             {% csrf_token %}
