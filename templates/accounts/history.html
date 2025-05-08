@@ -13,16 +13,6 @@
             min-height: 80vh;
         }
 
-        .sidebar {
-            width: 20%;
-            background: #eb889e;
-            padding: 30px 20px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .sidebar .profile-image {
             width: 120px;
             height: 120px;
@@ -192,22 +182,7 @@
     </style>
 
     <div class="history-container">
-        <div class="sidebar">
-            <div class="profile-image">
-                <img src="
-                        {% if user.photo %}{{ user.photo.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}"
-                     alt="Profile">
-            </div>
-            <h3>{{ user.get_full_name }}</h3>
-            <ul>
-                <li><a href="{% url 'profile' %}" class="text-white">Profile</a></li>
-                <li><a href="{% url 'payment_method' %}" class="text-white">Payment method</a></li>
-                <li class="active">History</li>
-                <li><a href="{% url 'bonuses' %}" class="text-white">My Bonuses</a></li>
-                <li><a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="text-white"><i
-                        class="fa-solid fa-right-from-bracket"></i></a></li>
-            </ul>
-        </div>
+        {% block sidebar %}{% include "accounts/profile_sidebar.html" %}{% endblock %}
 
         <div class="history-main">
             <h1>History</h1>

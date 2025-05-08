@@ -1,0 +1,205 @@
+{% load static %}
+<style>
+    body {
+            color: #000000;
+        }
+
+        .profile-layout {
+            display: flex;
+            min-height: 80vh;
+            background-color: #fff;
+        }
+
+        .profile-menu li {
+            padding: 12px 0;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        .profile-menu li a {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .profile-menu li:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding-left: 10px;
+        }
+
+        .profile-menu li.active {
+            background-color: rgba(255,255,255,0.2);
+            font-weight: bold;
+            border-radius: 8px;
+            padding-left: 10px;
+        }
+
+        .profile-main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .profile-main h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .profile-info {
+            margin-top: 50px;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .profile-info label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .profile-info input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            background-color: #f8c8d1;
+            margin-bottom: 20px;
+            font-family: 'Cormorant Unicase';
+            font-size: 16px;
+        }
+
+        .save-btn {
+            background-color: #e2809d;
+            color: white;
+            padding: 12px 40px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Cormorant Unicase';
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(214, 102, 143, 0.4);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .save-btn:hover {
+            background-color: #d26c8a;
+        }
+
+        .edit-btn {
+            position: absolute;
+            bottom: 150px;
+            height: 50px;
+            right: 30px;
+            padding: 10px 20px;
+            border: none;
+            background: #f8a1b5;
+            color: white;
+            font-family: 'Cormorant Unicase';
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(214, 102, 143, 0.4);
+            z-index: 1000;
+        }
+
+        .edit-btn:hover {
+            background: #c94f7c;
+        }
+
+        .address-row {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .address-row > div,
+        .address-row .form-group {
+            flex: 1;
+        }
+    .profile-sidebar {
+        width: 20%;
+        background-color: #eb889e;
+        padding: 30px 20px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-image-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    .profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-name {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 500;
+    }
+
+    .profile-menu {
+        list-style: none;
+        padding: 0;
+        width: 100%;
+        margin-top: 30px;
+    }
+</style>
+<div class="profile-sidebar">
+    <div class="profile-image-container">
+        {% if user.photo %}
+            <img src="{{ user.photo.url }}" alt="Profile Picture" class="profile-img">
+        {% else %}
+            <img src="{% static 'img/default-profile.png' %}" alt="Profile Picture" class="profile-img">
+        {% endif %}
+    </div>
+    <h3 class="profile-name">{{ user.get_full_name }}</h3>
+
+    <ul class="profile-menu">
+        <li class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <a href="{% url 'profile' %}" class="text-white d-flex align-items-center gap-2">
+                <i class="fa-solid fa-user-circle"></i><span>Profile</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'payment_method' %}active{% endif %}">
+            <a href="{% url 'payment_method' %}" class="text-white d-flex align-items-center gap-2">
+                <i class="fa-solid fa-credit-card"></i><span>Payment</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+            <a href="{% url 'history' %}" class="text-white d-flex align-items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i><span>History</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'bonuses' %}active{% endif %}">
+            <a href="{% url 'bonuses' %}" class="text-white d-flex align-items-center gap-2">
+                <i class="fa-solid fa-coins"></i><span>Bonuses</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"
+               class="text-white d-flex align-items-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</div>
