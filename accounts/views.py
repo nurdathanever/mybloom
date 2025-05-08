@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, resolve_url
 from django.contrib.auth import login, get_user_model, logout, update_session_auth_hash
+from django.template.loader import render_to_string
 from .forms import CustomUserCreationForm, ProfileUpdateForm, CustomPasswordChangeForm
 from django.contrib import messages
 from allauth.account.views import LoginView
 from .models import PaymentCard
 from .forms import PaymentCardForm
 from orders.models import Order
+from django.views.decorators.cache import cache_page
 
 User = get_user_model()
 
@@ -33,7 +36,7 @@ def profile_view(request):
             messages.success(request, "Profile updated successfully!")
             return redirect("profile")
     else:
-        form = ProfileUpdateForm(instance=request.user)
+        form = ProfileUpdateForm(instance=User.objects.only('first_name', 'last_name', 'email', 'phone', 'street', 'building', 'apartment', 'photo').get(id=request.user.id))
 
     return render(request, "accounts/profile.html", {"form": form})
 
@@ -74,7 +77,7 @@ class CustomLoginView(LoginView):
         return super().dispatch(request, *args, **kwargs)
 
 def payment_method_view(request):
-    cards = PaymentCard.objects.filter(user=request.user)
+    cards = PaymentCard.objects.select_related('user').filter(user=request.user)
     if request.method == 'POST':
         form = PaymentCardForm(request.POST)
         if form.is_valid():
@@ -91,11 +94,30 @@ def my_bonuses_view(request):
     return render(request, 'accounts/my_bonuses.html')
 
 @login_required
+@cache_page(60 * 5)
 def order_history_view(request):
-    orders = Order.objects.filter(user=request.user).order_by('-ordered_at')
+    status_filter = request.GET.get("filter")
+    all_orders = Order.objects.filter(user=request.user).order_by('-ordered_at').prefetch_related(
+        'items__product', 'items__custom_bouquet'
+    )
+
+    if status_filter:
+        filtered_orders = all_orders.filter(status__iexact=status_filter)
+    else:
+        filtered_orders = all_orders
+
+    # Count by status
+    counts = {
+        'all': all_orders.count(),
+        'pending': all_orders.filter(status='pending').count(),
+        'confirmed': all_orders.filter(status='confirmed').count(),
+        'out_for_delivery': all_orders.filter(status='out_for_delivery').count(),
+        'delivered': all_orders.filter(status='delivered').count(),
+        'cancelled': all_orders.filter(status='cancelled').count(),
+    }
+
     order_data = []
-    print(orders)
-    for order in orders:
+    for order in filtered_orders:
         image = None
         items = order.items.select_related('product', 'custom_bouquet')
         first_item = items.first()
@@ -112,6 +134,42 @@ def order_history_view(request):
             )
         })
 
-    print(order_data)
+    return render(request, 'accounts/history.html', {
+        'orders': order_data,
+        'counts': counts,
+        'filter': status_filter,
+    })
 
-    return render(request, 'accounts/history.html', {'orders': order_data})
+@cache_page(60 * 5)
+@login_required
+def order_history_ajax_view(request):
+    status_filter = request.GET.get("filter")
+    all_orders = Order.objects.filter(user=request.user).order_by('-ordered_at').prefetch_related(
+        'items__product', 'items__custom_bouquet'
+    )
+
+    if status_filter:
+        filtered_orders = all_orders.filter(status__iexact=status_filter)
+    else:
+        filtered_orders = all_orders
+
+    order_data = []
+    for order in filtered_orders:
+        image = None
+        items = order.items.select_related('product', 'custom_bouquet')
+        first_item = items.first()
+        if first_item:
+            if first_item.product and first_item.product.image:
+                image = first_item.product.image.url
+            elif first_item.custom_bouquet and first_item.custom_bouquet.image:
+                image = first_item.custom_bouquet.image.url
+        order_data.append({
+            'order': order,
+            'image': image,
+            'title': first_item.product.name if first_item and first_item.product else (
+                first_item.custom_bouquet.description if first_item and first_item.custom_bouquet else "Bouquet"
+            )
+        })
+
+    html = render_to_string('accounts/_order_list.html', {'orders': order_data})
+    return HttpResponse(html)

@@ -1,0 +1,27 @@
+<div class="order-header d-flex align-items-center justify-content-between"
+     style="padding: 10px 0; font-weight: bold; border-bottom: 2px solid #ccc;">
+    <div class="col-6 col-md-6">Order</div>
+    <div class="col-2 col-md-2 text-center">Status</div>
+    <div class="col-2 col-md-2 text-center">Total</div>
+    <div class="col-2 col-md-2 text-center">Details</div>
+</div>
+{% for order in orders %}
+    <div class="order-card row align-items-center py-3 border-bottom">
+        <div class="col-6 col-md-6 d-flex align-items-center gap-3">
+            <img src="{{ order.image }}" class="img-fluid"
+                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+            <div>
+                <div style="font-family: 'Cormorant Unicase'; font-size: 18px;">{{ order.title }}</div>
+                <div style="font-size: 14px;">#{{ order.order.order_number }}</div>
+            </div>
+        </div>
+        <div class="col-2 col-md-2 text-center order-status {{ order.order.status|lower }}">{{ order.order.status }}</div>
+        <div class="col-2 col-md-2 text-center">{{ order.order.total }} KZT</div>
+        <div class="col-2 col-md-2 text-center">
+            <button class="btn-details" onclick="showOrderDetails({{ order.order.id }})">Order Details
+            </button>
+        </div>
+    </div>
+{% empty %}
+    <p class="text-muted text-center mt-4">No orders found.</p>
+{% endfor %}

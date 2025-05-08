@@ -2,60 +2,118 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/shipping.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shipping.css' %}">
 
-<div class="w-100 bg-white p-5">
-    <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Shipping & Delivery Information</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label>Name</label>
-                <input type="text" name="name" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Phone</label>
-                <input type="text" name="phone" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Street</label>
-                <input type="text" name="street" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Building</label>
-                <input type="text" name="building" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Apartment</label>
-                <input type="text" name="apartment" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Delivery Method</label>
-                <select name="delivery_method" class="form-select" required>
-                    <option value="standard">Standard Delivery</option>
-                    <option value="express">Express Delivery</option>
-                </select>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Comment</label>
-                <input type="text" name="comment" class="form-control">
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Preferred Date</label>
-                <input type="date" name="date" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Preferred Time</label>
-                <input type="time" name="time" class="form-control" required>
-            </div>
+    <div class="w-100 bg-white p-5">
+        <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Shipping & Delivery</h2>
+
+        <!-- Progress bar -->
+        <div class="checkout-steps mb-4 text-center">
+            <span class="step active">Shipping</span>
+            <span class="step">Payment</span>
+            <span class="step">Confirmation</span>
         </div>
-        <div class="text-center mt-4">
-            <button type="submit" class="btn btn-primary px-5">Continue to Payment</button>
-        </div>
-    </form>
-</div>
+        <form method="post">
+            {% csrf_token %}
+            <!-- Recipient Selector -->
+            <div class="mb-4">
+                <label><strong>Who is receiving the order?</strong></label><br>
+                <input type="radio" name="recipient" value="self" id="myself" checked onchange="toggleRecipient()">
+                <label for="myself">Myself</label>
+                &nbsp;&nbsp;
+                <input type="radio" name="recipient" value="other" id="otherperson" onchange="toggleRecipient()">
+                <label for="otherperson">Different person</label>
+            </div>
+
+            <div class="row" id="recipient-info">
+                <div class="col-md-6 mb-3">
+                    <label>Full Name</label>
+                    <input type="text" name="name" id="nameField" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Phone</label>
+                    <input type="text" name="phone" id="phoneField" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Email</label>
+                    <input type="email" name="email" id="emailField" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Delivery Options -->
+            <div class="mb-4">
+                <label><strong>Delivery Option:</strong></label><br>
+                <input type="radio" name="delivery_method" value="courier" id="courier" checked
+                       onchange="toggleRecipient()">
+                <label for="courier">Shipping by Courier</label>
+                &nbsp;&nbsp;
+                <input type="radio" name="delivery_method" value="pickup" id="pickup" onchange="toggleRecipient()">
+                <label for="pickup">Self Pickup</label>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Street</label>
+                    <input type="text" name="street" id="streetField" class="form-control" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>Building</label>
+                    <input type="text" name="building" id="buildingField" class="form-control" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>Apartment</label>
+                    <input type="text" name="apartment" id="apartmentField" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Preferred Date</label>
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Preferred Time</label>
+                    <input type="time" name="time" class="form-control" required>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label>Comment</label>
+                    <input type="text" name="comment" class="form-control">
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5">Continue to Payment</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleRecipient() {
+            const myself = document.getElementById("myself").checked;
+            const isCourier = document.getElementById("courier").checked;
+            if (myself) {
+                document.getElementById("nameField").value = "{{ request.user.get_full_name }}";
+                document.getElementById("phoneField").value = "{{ request.user.phone|default:'' }}";
+                document.getElementById("emailField").value = "{{ request.user.email }}";
+                if (isCourier) {
+                    document.getElementById("streetField").value = "{{ request.user.street|default:'' }}";
+                    document.getElementById("buildingField").value = "{{ request.user.building|default:'' }}";
+                    document.getElementById("apartmentField").value = "{{ request.user.apartment|default:'' }}";
+                } else {
+                    document.getElementById("streetField").value = "";
+                    document.getElementById("buildingField").value = "";
+                    document.getElementById("apartmentField").value = "";
+                }
+            } else {
+                document.getElementById("nameField").value = "";
+                document.getElementById("phoneField").value = "";
+                document.getElementById("emailField").value = "";
+                document.getElementById("streetField").value = "";
+                document.getElementById("buildingField").value = "";
+                document.getElementById("apartmentField").value = "";
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", toggleRecipient);
+    </script>
 {% endblock %}

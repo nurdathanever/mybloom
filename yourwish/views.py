@@ -6,6 +6,8 @@ from datetime import datetime
 from PIL import Image
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.views.decorators.cache import cache_page
+
 from products.models import Product
 from cart.models import CartItem
 from django.utils import timezone
@@ -18,6 +20,7 @@ client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 @login_required
+@cache_page(60 * 5)
 def yourwish_tabs(request):
     step = request.POST.get("step", "flowers")
     selected_flowers = request.session.get("selected_flowers", {})
@@ -71,6 +74,7 @@ def yourwish_tabs(request):
     })
 
 
+@cache_page(60 * 5)
 @login_required
 def yourwish_bloomit(request):
     flowers_data_str = request.POST.get("flowers_data", "{}")
@@ -125,6 +129,7 @@ def yourwish_bloomit(request):
     })
 
 
+@cache_page(60 * 5)
 @login_required
 def yourwish_confirm_bouquet(request):
     print(request.session.keys())

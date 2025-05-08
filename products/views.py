@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
+from django.views.decorators.cache import cache_page
+
 from .models import Product
 from .forms import ProductForm, ProductFilterForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -54,7 +56,7 @@ def is_admin(user):
 #         "flower_types": flower_types,
 #     }
 #     return render(request, "products/product_list.html", context)
-
+@cache_page(60 * 5)
 def product_list(request):
     all_flower_types = Product.objects.filter(category='flower').distinct()
     products = Product.objects.filter(category='bouquet')
@@ -77,6 +79,7 @@ def product_list(request):
     return render(request, 'products/product_list.html', {'products': products,
                                                           'filter_form': form, "all_flower_types": all_flower_types})
 
+@cache_page(60 * 5)
 def product_detail(request, product_id):
     """Display details of a single product."""
     product = get_object_or_404(Product, id=product_id)

@@ -1,0 +1,132 @@
+{% block admin_content %}
+    <h2 class="mb-4">All Users</h2>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Image</th>
+                <th>Item</th>
+                <th>Address</th>
+                <th>Total Price</th>
+                <th>Delivery Time</th>
+                <th>Comments</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for group in recent_orders %}
+                <tr class="table-secondary">
+                    <td colspan="10" class="fw-bold">
+                        Order #{{ group.order.order_number }}
+                        <span class="badge
+                                {% if group.status == 'pending' %}bg-warning text-dark
+                                {% elif group.status == 'confirmed' %}bg-info
+                                {% elif group.status == 'shipped' %}bg-primary
+                                {% elif group.status == 'delivered' %}bg-success
+                                {% else %}bg-secondary{% endif %}
+                                ms-2">
+                                {{ group.status|title }}
+                            </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ group.order.ordered_at|date:"d M Y, H:i" }}</td>
+                    <td>{{ group.order.user.username }}<br><small>{{ group.order.user.phone }}</small></td>
+                    <td colspan="2" rowspan="{{ group.items|length }}">
+                        <table class="w-100">
+                            {% for item in group.items %}
+                                <tr>
+                                    <td style="width: 60px;">
+                                        <img src="{{ item.image }}"
+                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px">
+                                    </td>
+                                    <td style="padding-left: 10px">{{ item.name|truncatewords:5 }}</td>
+                                    {#                                        <td>x{{ item.count }}</td>#}
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td>{{ group.order.street }} st., {{ group.order.building }} bld., {{ group.order.apartment }}
+                        apt.
+                    </td>
+                    <td>{{ group.order.total }} KZT</td>
+                    <td>{{ group.order.delivery_time|default:"—" }}</td>
+                    <td>{{ group.order.comment|default:"—" }}</td>
+                    <td>
+                        <form method="post" action="{% url 'update_order_status' group.order.id %}"
+                              class="d-flex align-items-center gap-2">
+                            {% csrf_token %}
+                            <select name="status" class="form-select form-select-sm" style="max-width: 140px;">
+                                <option value="pending" {% if group.status == "pending" %}selected{% endif %}>
+                                    Pending
+                                </option>
+                                <option value="confirmed" {% if group.status == "confirmed" %}selected{% endif %}>
+                                    Confirmed
+                                </option>
+                                <option value="shipped" {% if group.status == "shipped" %}selected{% endif %}>
+                                    Shipped
+                                </option>
+                                <option value="delivered" {% if group.status == "delivered" %}selected{% endif %}>
+                                    Delivered
+                                </option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary"
+                                    style="background: #EB889E; padding: 2px 10px;">Save
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-sm btn-outline-secondary d-inline-block"
+                                    data-bs-toggle="modal" data-bs-target="#orderDetailModal{{ group.order.id }}"
+                                    style="background: #abbfe4; padding: 2px 10px">
+                                View details
+                            </button>
+                            <div class="modal fade" id="orderDetailModal{{ group.order.id }}" tabindex="-1"
+                                 aria-labelledby="modalLabel{{ group.order.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalLabel{{ group.order.id }}">Order
+                                                #{{ group.order.order_number }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Date:</strong> {{ group.order.ordered_at }}</p>
+                                            <p><strong>Customer:</strong> {{ group.order.user.get_full_name }}
+                                                ({{ group.order.user.email }})</p>
+                                            <p>
+                                                <strong>Address:</strong> {{ group.order.street }}, {{ group.order.building }},
+                                                Apt {{ group.order.apartment }}</p>
+                                            <p><strong>Phone:</strong> {{ group.order.user.phone }}</p>
+                                            <p><strong>Delivery Time:</strong> {{ group.order.delivery_time }}</p>
+                                            <p><strong>Comments:</strong> {{ group.order.comment|default:"—" }}</p>
+                                            <p><strong>Items:</strong></p>
+                                            <ul>
+                                                {% for modal_item in group.items %}
+                                                    <li>{{ modal_item.count }} × {{ modal_item.name }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                            <p><strong>Total:</strong> {{ group.order.total }} KZT</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -80,6 +80,41 @@
             text-decoration: underline;
         }
 
+        #loadingSpinner {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2000;
+            backdrop-filter: blur(2px);
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .filter-tabs span:hover {
+            background-color: rgba(235, 136, 158, 0.2);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
         .order-table {
             width: 100%;
             border-collapse: collapse;
@@ -119,6 +154,8 @@
             border-radius: 10px;
             border: none;
             cursor: pointer;
+            display: inline-block;
+            margin: 0 auto;
         }
 
         .btn-clear {
@@ -187,91 +224,109 @@
         <div class="history-main">
             <h1>History</h1>
             <div class="filter-tabs">
-                <span class="active">All Order(4)</span>
-                <span>Pending(1)</span>
-                <span>Completed(2)</span>
-                <span>Cancelled(1)</span>
+                <span class="filter-tab {% if not filter %}active{% endif %}"
+                      onclick="filterOrders('')">All Order({{ counts.all }})</span>
+                <span class="filter-tab {% if filter == 'pending' %}active{% endif %}"
+                      onclick="filterOrders('pending')">Pending({{ counts.pending }})</span>
+                <span class="filter-tab {% if filter == 'confirmed' %}active{% endif %}"
+                      onclick="filterOrders('confirmed')">Confirmed({{ counts.confirmed }})</span>
+                <span class="filter-tab {% if filter == 'out_for_delivery' %}active{% endif %}"
+                      onclick="filterOrders('out_for_delivery')">Out for Delivery({{ counts.out_for_delivery }})</span>
+                <span class="filter-tab {% if filter == 'delivered' %}active{% endif %}"
+                      onclick="filterOrders('delivered')">Delivered({{ counts.delivered }})</span>
+                <span class="filter-tab {% if filter == 'cancelled' %}active{% endif %}"
+                      onclick="filterOrders('cancelled')">Cancelled({{ counts.cancelled }})</span>
                 <button class="btn-clear" onclick="document.getElementById('clearModal').style.display='flex'">
                     <i class="fa fa-trash"></i>
                 </button>
             </div>
 
-            <table class="order-table">
-                <thead>
-                <tr>
-                    <th>Items</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Details</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>
-                            <img src="{{ order.image }}"
-                                 class="order-img"> {{ order.title }}<br><small>#{{ order.order.order_number }}</small>
-                        </td>
-                        <td class="order-status {{ order.order.status|lower }}">{{ order.order.status }}</td>
-                        <td>{{ order.order.total }} KZT</td>
-                        <td>
-                            <button class="btn-details" onclick="showOrderDetails({{ order.order.id }})">Order Details</button>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            <div id="orderList" style="margin-top: 30px;">
+                {% include "accounts/_order_list.html" with orders=orders %}
+            </div>
+            <div id="loadingSpinner" style="display:none; justify-content:center; align-items:center; padding: 40px 0;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
         <div class="popup-overlay" id="orderDetailsModal" style="display: none;">
             <div class="popup-modal" style="max-width: 700px; text-align: left;">
                 <h4>Order Details</h4>
                 <div id="orderDetailsContent"></div>
-                <button class="btn cancel" onclick="document.getElementById('orderDetailsModal').style.display='none'">Close</button>
+                <button class="btn cancel" onclick="document.getElementById('orderDetailsModal').style.display='none'">
+                    Close
+                </button>
             </div>
         </div>
 
-    <!-- Modal -->
-    <div class="popup-overlay" id="clearModal">
-        <div class="popup-modal">
-            <h4>This action cannot be undone</h4>
-            <p>Are you sure you want to clear your order history?</p>
-            <button class="btn cancel" onclick="document.getElementById('clearModal').style.display='none'">Cancel
-            </button>
-            <button class="btn confirm">Confirm</button>
+        <!-- Modal -->
+        <div class="popup-overlay" id="clearModal">
+            <div class="popup-modal">
+                <h4>This action cannot be undone</h4>
+                <p>Are you sure you want to clear your order history?</p>
+                <button class="btn cancel" onclick="document.getElementById('clearModal').style.display='none'">Cancel
+                </button>
+                <button class="btn confirm">Confirm</button>
+            </div>
         </div>
-    </div>
-<script>
-function showOrderDetails(orderId) {
-    fetch(`/orders/api/detail/${orderId}/`)
-        .then(res => res.json())
-        .then(data => {
-            let html = `
-                <div style="padding: 20px; font-size: 15px; border: 1px solid #ddd; border-radius: 12px;">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <div>Order Number<br><span style="font-weight: normal;">#${data.order_number}</span></div>
-                        <div>Order Date<br><span style="font-weight: normal;">${data.date}</span></div>
-                        <div>Status<br><span class="order-status ${data.status.toLowerCase()}">${data.status}</span></div>
-                        <div>Ship To<br><span style="font-weight: normal;">${data.address}</span></div>
-                    </div>
-                    <hr style="margin: 20px 0;">
-                    ${data.items.map(item => `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <div style="display: flex;">
-                                <img src="${item.image}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover; margin-right: 15px;">
-                                <span>${item.name}</span>
+        <script>
+            function filterOrders(status) {
+                const query = status ? `?filter=${status}` : '';
+                document.getElementById("loadingSpinner").style.display = "flex";
+                fetch("{% url 'order_history_ajax' %}" + query)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById("orderList").innerHTML = html;
+                        document.getElementById("loadingSpinner").style.display = "none";
+                        document.querySelectorAll(".filter-tab").forEach(tab => {
+                            tab.classList.remove("active");
+                        });
+                        if (status === "") {
+                            document.querySelector(".filter-tab:first-child").classList.add("active");
+                        } else {
+                            document.querySelector(`.filter-tab[onclick*="${status}"]`).classList.add("active");
+                        }
+                    });
+            }
+
+            function showOrderDetails(orderId) {
+                document.getElementById("loadingSpinner").style.display = "flex";
+                fetch(`/orders/api/detail/${orderId}/`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById("loadingSpinner").style.display = "none";
+                        let html = `
+                            <div style="padding: 20px; font-size: 15px; border: 1px solid #ddd; border-radius: 12px;">
+                                <div style="display: flex; justify-content: space-between; font-weight: bold; flex-wrap: wrap; gap: 10px;">
+                                    <div>Order Number<br><span style="font-weight: normal;">#${data.order_number}</span></div>
+                                    <div>Order Date<br><span style="font-weight: normal;">${data.date}</span></div>
+                                    <div>Status<br><span class="order-status ${data.status.toLowerCase()}">${data.status}</span></div>
+                                    <div>Ship To<br><span style="font-weight: normal;">${data.street} st., ${data.building} bld., ${data.apartment} apt.</span></div>
+                                </div>
+                                <hr style="margin: 20px 0;">
+                                ${data.items.map(item => `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
+                                        <div style="display: flex; align-items: center;">
+                                            <img src="${item.image}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover; margin-right: 15px;">
+                                            <span>${item.name}</span>
+                                        </div>
+                                        <div>${item.price} KZT</div>
+                                    </div>
+                                `).join('')}
+                                <hr style="margin: 20px 0;">
+                                <div>Shipping: 1500 KZT</div>
+                                <div>Total: ${data.total} KZT</div>
+                                <div style="text-align: right; color: #eb889e;">Cashback 15%</div>
+
+                                ${data.status.toLowerCase() === 'shipped' ? `
+                                <iframe src="https://yandex.com/map-widget/v1/?ll=76.922459%2C43.235061&mode=routes&rtext=43.235061,76.922459~Алматы,${data.street},${data.building}&rtt=auto&ruri=~&z=13" width="100%" height="300" frameborder="0" allowfullscreen style="border-radius: 12px;"></iframe>` : ""}
                             </div>
-                            <div>${item.price} KZT</div>
-                        </div>
-                    `).join('')}
-                    <hr style="margin: 20px 0;">
-                    <div>Shipping: ${data.shipping} KZT</div>
-                    <div>Total: ${data.total} KZT</div>
-                    <div style="text-align: right; color: #eb889e;">Cashback ${data.cashback_percent}%</div>
-                </div>
-            `;
-            document.getElementById('orderDetailsContent').innerHTML = html;
-            document.getElementById('orderDetailsModal').style.display = 'flex';
-        });
-}
-</script>
+                        `;
+                        document.getElementById('orderDetailsContent').innerHTML = html;
+                        document.getElementById('orderDetailsModal').style.display = 'flex';
+                    });
+            }
+        </script>
+    </div>
 {% endblock %}

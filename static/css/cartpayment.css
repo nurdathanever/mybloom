@@ -1,6 +1,7 @@
 body {
     color: black;
 }
+
 .container {
     background-color: #f8f9fa;
 }
@@ -21,4 +22,55 @@ label {
 
 .btn-primary:hover {
     background-color: #d96a87;
+}
+
+
+.checkout-steps {
+    display: flex;
+    justify-content: space-between;
+    max-width: 700px;
+    margin: 0 auto 40px;
+    position: relative;
+    padding: 0 20px;
+}
+
+.checkout-steps .step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    font-family: 'Cormorant Unicase';
+    font-size: 16px;
+    color: #aaa;
+}
+
+.checkout-steps .step::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d63384;
+    background-color: white;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 8px;
+    z-index: 2;
+    position: relative;
+}
+
+.checkout-steps .step.active {
+    color: #d63384;
+}
+
+.checkout-steps .step.active::before {
+    background-color: #d63384;
+}
+
+.checkout-steps::before {
+    content: '';
+    position: absolute;
+    top: 9px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background-color: #d63384;
+    z-index: 1;
 }

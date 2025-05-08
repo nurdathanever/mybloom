@@ -1,7 +1,16 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.views.decorators.cache import cache_page
+
 from cart.models import CartItem
 from orders.models import Order, OrderItem
+from django.http import JsonResponse
+from orders.models import OrderItem
+from django.utils.dateformat import DateFormat
+import random, string
 
+def generate_order_number():
+    return ''.join(random.choices(string.digits, k=10))
 
 def checkout_shipping(request):
     if request.method == "POST":
@@ -20,7 +29,6 @@ def checkout_shipping(request):
         return redirect("checkout_payment")
     return render(request, "orders/shipping_delivery.html")
 
-
 def checkout_payment(request):
     if request.method == "POST":
         # Save payment info to session (mocked for now)
@@ -33,11 +41,10 @@ def checkout_payment(request):
         return redirect("checkout_confirmation")
     return render(request, "orders/payment.html")
 
-
 def checkout_confirmation(request):
     shipping = request.session.get("shipping", {})
     payment = request.session.get("payment", {})
-    cart_items = CartItem.objects.filter(user=request.user).select_related('product', 'custom_bouquet')
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product', 'custom_bouquet').prefetch_related('custom_bouquet__flowers__product', 'custom_bouquet__accessories__product')
     cart_summary = []
     for item in cart_items:
         name = ""
@@ -50,13 +57,12 @@ def checkout_confirmation(request):
             "quantity": item.quantity,
             "total_price": int(item.total_price())
         })
-    print(cart_summary)
 
     if request.method == "POST":
         # Create the order
         total = sum([item["total_price"] for item in cart_summary])
-        print(total)
         order = Order.objects.create(
+            order_number=generate_order_number(),
             user=request.user,
             name=shipping.get("name"),
             email=shipping.get("email"),
@@ -110,3 +116,36 @@ def checkout_confirmation(request):
 
 def order_complete(request):
     return render(request, "orders/order_complete.html")
+
+# @cache_page(60 * 5)
+@login_required
+def order_detail_api(request, order_id):
+    order = Order.objects.select_related('user').prefetch_related('items__product', 'items__custom_bouquet').get(id=order_id, user=request.user)
+    items = order.items.select_related('product', 'custom_bouquet')
+
+    item_data = []
+    for item in items:
+        if item.product:
+            item_data.append({
+                "name": item.product.name,
+                "price": item.price * item.quantity,
+                "image": item.product.image.url if item.product.image else "",
+            })
+        elif item.custom_bouquet:
+            item_data.append({
+                "name": item.custom_bouquet.description or "Custom Bouquet",
+                "price": item.price * item.quantity,
+                "image": item.custom_bouquet.image.url if item.custom_bouquet.image else "",
+            })
+
+    response = {
+        "order_number": order.order_number,
+        "date": DateFormat(order.ordered_at).format('d M Y'),
+        "status": order.status,
+        "street": order.street,
+        "building": order.building,
+        "apartment": order.apartment,
+        "items": item_data,
+        "total": order.total,
+    }
+    return JsonResponse(response)

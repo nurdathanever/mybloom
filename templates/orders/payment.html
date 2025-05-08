@@ -2,37 +2,67 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/cartpayment.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cartpayment.css' %}">
 
-<div class="w-100 bg-white p-5">
-    <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Payment Information</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label>Cardholder Name</label>
-                    <input type="text" name="card_name" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label>Card Number</label>
-                    <input type="text" name="card_number" class="form-control" required>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label>Expiry Date</label>
-                        <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required>
+    <div class="w-100 bg-white p-5">
+        <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Payment Information</h2>
+        <div class="checkout-steps mb-4 text-center">
+            <span class="step">Shipping</span>
+            <span class="step active">Payment</span>
+            <span class="step">Confirmation</span>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label>Cardholder Name</label>
+                        <input type="text" name="card_name" class="form-control" required>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label>CVV</label>
-                        <input type="text" name="cvv" class="form-control" required>
+                    <div class="mb-3">
+                        <label>Card Number</label>
+                        <input type="text" name="card_number" class="form-control" required>
                     </div>
-                </div>
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary px-5">Continue to Confirmation</button>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Expiry Date</label>
+                            <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>CVV</label>
+                            <input type="text" name="cvv" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-5">Continue to Confirmation</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cardNumberInput = document.querySelector('input[name="card_number"]');
+            const expiryInput = document.querySelector('input[name="expiry"]');
+            const cvvInput = document.querySelector('input[name="cvv"]');
+
+            cardNumberInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '').slice(0, 16);
+                value = value.replace(/(.{4})/g, '$1 ').trim();
+                e.target.value = value;
+            });
+
+            expiryInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                if (value.length >= 3) {
+                    value = value.slice(0, 2) + '/' + value.slice(2);
+                }
+                e.target.value = value;
+            });
+
+            cvvInput.addEventListener('input', function (e) {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3);
+            });
+        });
+    </script>
 {% endblock %}

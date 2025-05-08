@@ -5,32 +5,49 @@
 <link rel="stylesheet" href="{% static 'css/confirmation.css' %}">
 
 <div class="w-100 bg-white p-5">
-    <h2 class="mb-4 text-center" style="font-family: 'Cormorant Unicase';">Confirm Your Order</h2>
-    <div class="row">
-        <div class="col-md-6">
-            <h4>Shipping Information</h4>
-            <p><strong>Name:</strong> {{ shipping.name }}</p>
-            <p><strong>Email:</strong> {{ shipping.email }}</p>
-            <p><strong>Phone:</strong> {{ shipping.phone }}</p>
-            <p><strong>Street:</strong> {{ shipping.street }}</p>
-            <p><strong>Building:</strong> {{ shipping.building }}</p>
-            <p><strong>Apartment:</strong> {{ shipping.apartment }}</p>
-            <p><strong>Delivery Method:</strong> {{ shipping.delivery_method }}</p>
-            <p><strong>Date:</strong> {{ shipping.date }}</p>
-            <p><strong>Time:</strong> {{ shipping.time }}</p>
+    <h2 class="text-center mb-4" style="font-family: 'Cormorant Unicase';">Order Confirmation</h2>
+
+    <div class="checkout-steps text-center mb-4">
+        <span class="step">Shipping</span>
+        <span class="step">Payment</span>
+        <span class="step active">Confirmation</span>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger text-center" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-3">Shipping Details</h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ shipping.name }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ shipping.email }}</p>
+                    <p class="mb-1"><strong>Phone:</strong> {{ shipping.phone }}</p>
+                    <p class="mb-1"><strong>Address:</strong> {{ shipping.street }} st., {{ shipping.building }} bld., {{ shipping.apartment }} apt.</p>
+                    <p class="mb-1"><strong>Delivery:</strong> {{ shipping.delivery_method }} | {{ shipping.date }} at {{ shipping.time }}</p>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <h4>Payment Information</h4>
-            <p><strong>Cardholder Name:</strong> {{ payment.card_name }}</p>
-            <p><strong>Card Number:</strong> **** **** **** {{ payment.card_number|slice:"-4:" }}</p>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-3">Payment Details</h5>
+                    <p class="mb-2"><strong>Cardholder:</strong> {{ payment.card_name }}</p>
+                    <p class="mb-0"><strong>Card Number:</strong> **** **** **** {{ payment.card_number|slice:"-4:" }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <h4 class="mt-4">Order Summary</h4>
+    <h5 class="text-primary">Order Items</h5>
     <ul class="list-group mb-4">
         {% for item in cart_items %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ item.name }} x {{ item.quantity }}
+                <span>{{ item.name }} × {{ item.quantity }}</span>
                 <span>{{ item.total_price }} KZT</span>
             </li>
         {% endfor %}
@@ -44,3 +61,11 @@
     </div>
 </div>
 {% endblock %}
+<style>
+.card-title {
+    font-family: 'Cormorant Unicase';
+}
+.card-body p {
+    font-size: 15px;
+}
+</style>
