@@ -1,26 +1,25 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
-    <div class="container my-5 bg-transparent text-light p-4 rounded shadow">
-        <ul class="nav nav-pills nav-fill mb-4" id="wishTabs" role="tablist">
+{% block yourwish %}
+    <div class="container my-5 bg-transparent text-light rounded shadow">
+        <ul class="nav nav-tabs justify-content-center mb-4" id="wishTabs" role="tablist" style="position: sticky; top: 0; z-index: 999; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); border-bottom: 1px solid #EB889E;">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="flowers-tab" data-bs-toggle="tab" data-bs-target="#flowers"
+                <button class="nav-link px-4 py-2 fw-bold active" id="flowers-tab" data-bs-toggle="tab" data-bs-target="#flowers"
                         type="button" role="tab">Flowers
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="accessories-tab" data-bs-toggle="tab" data-bs-target="#accessories"
+                <button class="nav-link px-4 py-2 fw-bold" id="accessories-tab" data-bs-toggle="tab" data-bs-target="#accessories"
                         type="button" role="tab">Accessories
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="postcard-tab" data-bs-toggle="tab" data-bs-target="#postcard" type="button"
+                <button class="nav-link px-4 py-2 fw-bold" id="postcard-tab" data-bs-toggle="tab" data-bs-target="#postcard" type="button"
                         role="tab">Postcard
                 </button>
             </li>
         </ul>
-
         <div class="tab-content" id="wishTabsContent">
             <div class="tab-pane fade show active" id="flowers" role="tabpanel">
                 <form id="flowerForm" method="post">
@@ -31,7 +30,7 @@
                                 <div class="card h-100 text-center shadow-sm border-0 flower-card"
                                      style="transition: all 0.3s ease;">
                                     <img src="{{ flower.image.url }}" class="card-img-top img-fluid"
-                                         style="object-fit: cover; border-radius: 10px;" alt="{{ flower.name }}">
+                                         style="object-fit: cover; border-radius: 10px; aspect-ratio: 1/1; height: auto;" alt="{{ flower.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ flower.name }}</h6>
                                         <div class="quantity-controls d-flex justify-content-center align-items-center mb-2">
@@ -64,6 +63,15 @@
                     {% csrf_token %}
                     <h4 class="text-white">Wrapping Papers</h4>
                     <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label class="card h-100 text-center shadow-sm border-0 accessory-card"
+                                   style="transition: all 0.3s ease; cursor: pointer;">
+                                <input type="radio" name="wrapping_paper" value="" class="d-none" autocomplete="off">
+                                <div class="card-body p-4 d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    <h6 class="card-title">No Wrapping Paper</h6>
+                                </div>
+                            </label>
+                        </div>
                         {% for paper in papers %}
                             <div class="col-md-3">
                                 <label class="card h-100 text-center shadow-sm border-0 accessory-card"
@@ -71,7 +79,7 @@
                                     <input type="radio" name="wrapping_paper" value="{{ paper.id }}" class="d-none"
                                            autocomplete="off">
                                     <img src="{{ paper.image.url }}" class="card-img-top img-fluid"
-                                         style="object-fit: cover; border-radius: 10px" alt="{{ paper.name }}">
+                                         style="object-fit: cover; border-radius: 10px; aspect-ratio: 1/1; height: auto;" alt="{{ paper.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ paper.name }}</h6>
                                         <p class="mb-0"><strong>{{ paper.price|floatformat }} ₸</strong></p>
@@ -90,7 +98,7 @@
                                     <input type="radio" name="ribbon" value="{{ ribbon.id }}" class="d-none"
                                            autocomplete="off">
                                     <img src="{{ ribbon.image.url }}" class="card-img-top img-fluid"
-                                         style="object-fit: cover; border-radius: 10px" alt="{{ ribbon.name }}">
+                                         style="object-fit: cover; border-radius: 10px; aspect-ratio: 1/1; height: auto;" alt="{{ ribbon.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ ribbon.name }}</h6>
                                         <p class="mb-0"><strong>{{ ribbon.price|floatformat }} ₸</strong></p>
@@ -124,7 +132,7 @@
                                            autocomplete="off">
                                     <img src="{{ card.image.url }}" alt="Postcard {{ card.id }}"
                                          class="card-img-top img-fluid"
-                                         style="object-fit: cover; border-radius: 10px" alt="{{ card.name }}">
+                                         style="object-fit: cover; border-radius: 10px; height: auto;" alt="{{ card.name }}">
                                     <div class="card-body p-2">
                                         <h6 class="card-title">{{ card.name }}</h6>
                                     </div>
@@ -142,13 +150,12 @@
                 </form>
             </div>
         </div>
-        <div class="mt-5 text-end text-white">
-            <h4>Estimated Price: <span id="estimated-price">0</span> ₸</h4>
-        </div>
-        <div class="fixed-bottom d-flex justify-content-center mb-5 pb-5">
-            <button class="btn btn-light mx-2 px-4 py-2 rounded-pill fw-bold" onclick="generateRandom()">Random</button>
-            <button class="btn btn-primary mx-2 px-4 py-2 rounded-pill fw-bold" onclick="submitWish()">Bloom it!
-            </button>
+        <div class="wish-footer-bar position-sticky bottom-0 bg-dark text-white text-center py-3" style="z-index: 1050;">
+            <h4 class="mb-3">Estimated Price: <span id="estimated-price">0</span> ₸</h4>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-light mx-2 px-4 py-2 rounded-pill fw-bold" onclick="generateRandom()">Random</button>
+                <button class="btn btn-primary mx-2 px-4 py-2 rounded-pill fw-bold" onclick="submitWish()">Bloom it!</button>
+            </div>
         </div>
         <div id="loadingModal" class="modal fade" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -416,6 +423,13 @@
         }
     </script>
     <style>
+        .flower-card img,
+        .accessory-card img,
+        .card-options .card img {
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            height: auto;
+        }
         .card {
             color: white;
         }
@@ -435,7 +449,6 @@
             box-shadow: 0 0 12px #EB889E;
             border-color: #EB889E;
         }
-
 
         .accessory-card:hover,
         .card-options .card:hover {
@@ -467,16 +480,18 @@
             color: #fff;
         }
 
-        #wishTabs {
-            position: sticky;
-            top: 80px;
-            z-index: 10;
-            background: rgba(67, 67, 67, 0.4);
-            backdrop-filter: blur(8px);
+        #wishTabs .nav-link {
+            color: white;
+            font-family: 'Cormorant Unicase', serif;
+            font-size: 22px;
+            border: none;
+            border-radius: 0;
         }
 
-        .nav-link {
-            color: #fff;
+        #wishTabs .nav-link.active {
+            border-bottom: 3px solid #EB889E;
+            color: #ffffff;
+            background: none;
         }
 
         /* Highlight selected accessory or postcard */
@@ -495,5 +510,13 @@
         .container.my-5 {
             padding-bottom: 120px;
         }
+    .wish-footer-bar {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        border-top: 1px solid #EB889E;
+    }
     </style>
 {% endblock %}

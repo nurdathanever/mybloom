@@ -96,6 +96,7 @@ nav ul li a:hover {
     max-width: 800px;
     margin: auto;
     z-index: 1;
+    padding-top: 200px;
 }
 
 .hero-text h2 {
