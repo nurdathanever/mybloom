@@ -17,11 +17,11 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         category = self.initial.get("category") or self.data.get("category")
-        if category != "bouquet":
-            self.fields.pop("size", None)
-            self.fields.pop("seasonality", None)
-            self.fields.pop("style", None)
-            self.fields.pop("flower_ingredients", None)
+        # if category != "bouquet":
+        #     self.fields.pop("size", None)
+        #     self.fields.pop("seasonality", None)
+        #     self.fields.pop("style", None)
+        #     self.fields.pop("flower_ingredients", None)
 
 
 class ProductFilterForm(forms.Form):

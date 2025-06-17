@@ -1,27 +1,81 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 {% block content %}
-<div class="container">
-    <h2 class="text-center mb-4">{% if form.instance.pk %}Edit Product{% else %}Add Product{% endif %}</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
+    <style>
+        .product-form {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-        <div class="mb-3">{{ form.name.label }} {{ form.name }}</div>
-        <div class="mb-3">{{ form.category.label }} {{ form.category }}</div>
-        <div class="mb-3">{{ form.description.label }} {{ form.description }}</div>
-        <div class="mb-3">{{ form.price.label }} {{ form.price }}</div>
-        <div class="mb-3">{{ form.discount.label }} {{ form.discount }}</div>
-        <div class="mb-3">{{ form.stock.label }} {{ form.stock }}</div>
-        <div class="mb-3">{{ form.image.label }} {{ form.image }}</div>
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-        {% if form.fields.size %}
-        <div class="mb-3">{{ form.size.label }} {{ form.size }}</div>
-        <div class="mb-3">{{ form.seasonality.label }} {{ form.seasonality }}</div>
-        <div class="mb-3">{{ form.style.label }} {{ form.style }}</div>
-        <div class="mb-3">{{ form.flower_ingredients.label }} {{ form.flower_ingredients }}</div>
-        {% endif %}
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-family: 'Cormorant Unicase', serif;
+            border: 1px solid #ccc;
+        }
 
-        <button type="submit" class="btn btn-success w-100">Save</button>
-    </form>
-</div>
+        .save-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 10px;
+            background-color: #e88096;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Cormorant Unicase', serif;
+            font-size: 18px;
+        }
+    </style>
+    <div>
+        <h2 class="text-center mb-4">{% if form.instance.pk %}Edit Product{% else %}Add Product{% endif %}</h2>
+        <form method="post" enctype="multipart/form-data" class="product-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="form-group">{{ form.name.label_tag }}{{ form.name }}</div>
+            <div class="form-group">
+                {{ form.category.label_tag }}
+                {{ form.category|add_class:"category-select" }}
+            </div>
+            <div class="form-group">{{ form.description.label_tag }}{{ form.description }}</div>
+            <div class="form-group">{{ form.price.label_tag }}{{ form.price }}</div>
+            <div class="form-group">{{ form.discount.label_tag }}{{ form.discount }}</div>
+            <div class="form-group">{{ form.stock.label_tag }}{{ form.stock }}</div>
+            <div class="form-group">{{ form.image.label_tag }}{{ form.image }}</div>
+
+            <div class="form-group" id="bouquet-fields" style="display:none;">
+                <div>{{ form.size.label_tag }}{{ form.size }}</div>
+                <div>{{ form.seasonality.label_tag }}{{ form.seasonality }}</div>
+                <div>{{ form.style.label_tag }}{{ form.style }}</div>
+                <div>{{ form.flower_ingredients.label_tag }}{{ form.flower_ingredients }}</div>
+            </div>
+
+            <button type="submit" class="save-btn">Save</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const categorySelect = document.querySelector(".category-select");
+            const bouquetFields = document.getElementById("bouquet-fields");
+
+            function toggleBouquetFields() {
+                if (categorySelect && categorySelect.value === "bouquet") {
+                    bouquetFields.style.display = "block";
+                } else {
+                    bouquetFields.style.display = "none";
+                }
+            }
+
+            categorySelect.addEventListener("change", toggleBouquetFields);
+            toggleBouquetFields(); // run on page load
+        });
+    </script>
 {% endblock %}

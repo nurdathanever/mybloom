@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "admin_panel",
     "yourwish",
     'cart',
+
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -112,8 +114,8 @@ LOCALE_PATHS = [
 ]
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]      # Source of your files
-STATIC_ROOT = BASE_DIR / "staticfiles"        # Destination for production use
+STATICFILES_DIRS = [BASE_DIR / "static"]  # Source of your files
+STATIC_ROOT = BASE_DIR / "staticfiles"  # Destination for production use
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "/media/"
@@ -159,7 +161,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
-        }
+    }
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
