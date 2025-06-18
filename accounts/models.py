@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class User(AbstractUser):
     ROLE_CHOICES = [
@@ -15,11 +17,19 @@ class User(AbstractUser):
     building = models.CharField(max_length=10, blank=True, null=True)
     apartment = models.CharField(max_length=10, blank=True, null=True)
     photo = models.ImageField(upload_to="profile_photos/", blank=True, null=True)
-    bonus_points = models.PositiveIntegerField(default=0)
     total_spent = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.username
+
+    def get_cashback_percentage(self):
+        if self.total_spent >= 450000:
+            return 15
+        elif self.total_spent >= 300000:
+            return 10
+        elif self.total_spent >= 150000:
+            return 5
+        return 1
 
 
 class Bonus(models.Model):
@@ -51,3 +61,9 @@ class PaymentCard(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.card_number[-4:]})"
+
+
+@receiver(post_save, sender=User)
+def create_user_bonus(sender, instance, created, **kwargs):
+    if created:
+        Bonus.objects.create(user=instance)

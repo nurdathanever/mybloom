@@ -1,152 +1,179 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}My Bonuses{% endblock %}
+
 {% block content %}
-    <style>
-        body {
-            color: #000000;
-        }
+<style>
+    body {
+        color: #000;
+    }
 
-        .bonus-container {
-            display: flex;
-            background: white;
-            min-height: 80vh;
-        }
+    .bonus-container {
+        display: flex;
+        background: white;
+        min-height: 100vh;
+    }
 
-        .sidebar .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
+    .bonus-main {
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
-        .sidebar .profile-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .bonus-main h1 {
+        font-size: 34px;
+        margin-bottom: 10px;
+    }
 
-        .sidebar h3 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 500;
-        }
+    .bonus-main h3 {
+        font-size: 20px;
+        margin: 20px 0 10px;
+    }
 
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            width: 100%;
-            margin-top: 30px;
-        }
+    .reward-progress-card {
+        background: linear-gradient(to right, #ffc3a0, #ffafbd);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
 
-        .sidebar ul li {
-            font-size: 22px;
-            padding: 10px 0;
-            border-bottom: 1px dotted white;
-            cursor: pointer;
-        }
+    .reward-progress-card .points {
+        font-size: 36px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
 
-        .sidebar ul li.active {
-            font-weight: bold;
-            color: #fff;
-            font-size: 26px;
-        }
+    .convert-btn {
+        background: white;
+        color: #ff4081;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 15px;
+    }
 
-        .bonus-main {
-            flex: 1;
-            padding: 40px;
-        }
+    .progress-bar-bg {
+        position: relative;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        margin-top: 20px;
+        margin-bottom: 25px;
+    }
 
-        .bonus-main h1 {
-            font-size: 34px;
-            margin-bottom: 10px;
-        }
+    .progress-bar-fill {
+        height: 100%;
+        background: white;
+        border-radius: 5px;
+        transition: width 0.3s ease;
+    }
 
-        .bonus-main h3 {
-            font-size: 20px;
-            margin: 20px 0;
-        }
+    .progress-checkpoints {
+        position: absolute;
+        top: 14px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: white;
+        padding: 0 5px;
+    }
 
-        .points-card {
-            background: linear-gradient(to right, #ef99aa, #b37dbd);
-            padding: 30px;
-            color: white;
-            font-size: 26px;
-            font-family: 'Cormorant Unicase';
-            border-radius: 20px;
-            width: 350px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 40px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
+    .hint {
+        margin-top: 10px;
+        font-size: 14px;
+    }
 
-        .rewards-container {
-            display: flex;
-            gap: 30px;
-            margin-top: 30px;
-        }
+    .reward-tiers {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
 
-        .reward-circle {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            background: linear-gradient(to bottom right, #f8a1b5, #a878c8);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Cormorant Unicase';
-            font-size: 18px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
+    .tier-card {
+        background: linear-gradient(to right, #c471f5, #fa71cd);
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        width: 200px;
+        text-align: center;
+        font-size: 18px;
+        font-family: 'Cormorant Unicase';
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
 
-        .reward-circle.marked {
-            border: 4px solid gold;
-            box-shadow: 0 0 20px gold;
-        }
-    </style>
+    .tier-card.marked {
+        border: 4px solid gold;
+        box-shadow: 0 0 20px gold;
+    }
+</style>
 
-    <div class="bonus-container">
-        {% block sidebar %}{% include "accounts/profile_sidebar.html" %}{% endblock %}
+<div class="bonus-container">
+    {% block sidebar %}{% include "accounts/profile_sidebar.html" %}{% endblock %}
 
-        <div class="bonus-main">
+    <div class="bonus-main">
+        <div>
             <h1>My Bonuses</h1>
             <h3>Watch your Rewards Bloom!</h3>
 
-            <div class="points-card">
-                <div>
-                    <div><i class="fa fa-gift"></i> Points</div>
+            <div class="reward-progress-card">
+                <div>My Bloom Points</div>
+                <div class="points">{{ bonus }} ß</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: {{ progress_percentage }}%"></div>
+                    <div class="progress-checkpoints">
+                        <span>0 ₸</span>
+                        <span>150 000 ₸</span>
+                        <span>300 000 ₸</span>
+                        <span>450 000 ₸</span>
+                    </div>
                 </div>
-                <div>{{ user.bonus_points }}</div>
-                <div><i class="fa fa-angle-right"></i></div>
+                <p class="hint">
+                    {% if total_spent >= 450000 %}
+                        Top Tier Reached
+                    {% elif total_spent >= 300000 %}
+                        Almost There!
+                    {% elif total_spent >= 150000 %}
+                        Keep Going!
+                    {% else %}
+                        Start Earning Bonuses
+                    {% endif %}
+                </p>
             </div>
 
             <h3>Bloom It Rewards System</h3>
             <p>Earn More with Bloom It Rewards!</p>
 
-            <div class="rewards-container">
-                <div class="reward-circle {% if user.total_spent >= 30000 %}marked{% endif %}">
-                    <div>over<br>30 000 KZT</div>
-                    <div>6%</div>
-                    <small>DISCOUNT</small>
+            <div class="reward-tiers">
+                <div class="tier-card {% if total_spent < 150000 %}marked{% endif %}">
+                    <div>1% Bonus</div>
+                    <p>for everyone</p>
                 </div>
-                <div class="reward-circle {% if user.total_spent >= 50000 %}marked{% endif %}">
-                    <div>over<br>50 000 KZT</div>
-                    <div>10%</div>
-                    <small>DISCOUNT</small>
+                <div class="tier-card {% if total_spent >= 150000 and total_spent < 300000 %}marked{% endif %}">
+                    <div>5% Bonus</div>
+                    <p>over 150 000 ₸</p>
                 </div>
-                <div class="reward-circle {% if user.total_spent >= 80000 %}marked{% endif %}">
-                    <div>over<br>80 000 KZT</div>
-                    <div>15%</div>
-                    <small>DISCOUNT</small>
+                <div class="tier-card {% if total_spent >= 300000 and total_spent < 450000 %}marked{% endif %}">
+                    <div>10% Bonus</div>
+                    <p>over 300 000 ₸</p>
+                </div>
+                <div class="tier-card {% if total_spent >= 450000 %}marked{% endif %}">
+                    <div>15% Bonus</div>
+                    <p>over 450 000 ₸</p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

@@ -10,6 +10,7 @@ from .models import PaymentCard
 from .forms import PaymentCardForm
 from orders.models import Order
 from django.views.decorators.cache import cache_page
+from .models import Bonus
 
 User = get_user_model()
 
@@ -91,7 +92,17 @@ def payment_method_view(request):
 
 @login_required
 def my_bonuses_view(request):
-    return render(request, 'accounts/my_bonuses.html')
+    user = request.user
+    bonus_obj, _ = Bonus.objects.get_or_create(user=user)
+    total_spent = user.total_spent
+    progress_percentage = min(100, int(total_spent / 450000 * 100))
+
+    return render(request, 'accounts/my_bonuses.html', {
+        "bonus": bonus_obj.points,
+        "total_spent": total_spent,
+        "progress_percentage": progress_percentage,
+    })
+
 
 @login_required
 @cache_page(60 * 5)

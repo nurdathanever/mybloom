@@ -100,6 +100,11 @@ def checkout_confirmation(request):
                     accessory.product.stock -= 1  # Assuming each accessory is counted once
                     accessory.product.save()
 
+        # Update user total_spent and bonus
+        request.user.total_spent += total
+        request.user.save()
+        request.user.bonus.add_points(int(total * request.user.get_cashback_percentage() / 100))
+
         # Clear cart and session
         cart_items.delete()
         request.session.pop("shipping", None)
