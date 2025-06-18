@@ -27,7 +27,9 @@ def view_cart(request):
 
     return render(request, "cart/cart.html", {
         "cart_items": enriched_items,
-        "total": total
+        "total": total,
+        "cashback_percentage": request.user.get_cashback_percentage(),
+        "bonus_points": request.user.bonus.points,
     })
 
 @login_required

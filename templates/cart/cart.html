@@ -82,14 +82,14 @@
                                         </p>
                                         {% if cart_item.item.product.discount > 0 %}
                                             <p class="mb-1">
-                                                <span class="text-danger">{{ cart_item.item.product.discounted_price|floatformat:0 }} KZT</span>
-                                                <span class="text-muted text-decoration-line-through ms-2">{{ cart_item.item.product.price|floatformat:0 }} KZT</span>
+                                                <span class="text-danger">{{ cart_item.item.product.discounted_price|floatformat:0 }} ₸</span>
+                                                <span class="text-muted text-decoration-line-through ms-2">{{ cart_item.item.product.price|floatformat:0 }} ₸</span>
                                             </p>
                                             <span id="price-{{ cart_item.item.id }}"
                                                   data-price="{{ cart_item.item.product.discounted_price }}"
                                                   style="display:none;"></span>
                                         {% else %}
-                                            <p class="mb-1">{{ cart_item.item.product.price|floatformat:0 }} KZT</p>
+                                            <p class="mb-1">{{ cart_item.item.product.price|floatformat:0 }} ₸</p>
                                             <span id="price-{{ cart_item.item.id }}"
                                                   data-price="{{ cart_item.item.product.price }}"
                                                   style="display:none;"></span>
@@ -114,7 +114,7 @@
                                             </p>
                                         {% endif %}
                                         <p class="mb-1">{{ cart_item.item.custom_bouquet.total_price|floatformat:0 }}
-                                            KZT</p>
+                                            ₸</p>
                                     </div>
                                     <span id="price-{{ cart_item.item.id }}"
                                           data-price="{{ cart_item.item.custom_bouquet.total_price }}"
@@ -131,7 +131,7 @@
                                 </div>
                                 <div class="ms-4" style="min-width: 120px;">
                                     <strong id="total-{{ cart_item.item.id }}">{{ cart_item.item.total_price }}
-                                        KZT</strong>
+                                        ₸</strong>
                                 </div>
                                 <div class="ms-3">
                                     <button type="button" class="btn btn-link text-dark remove-btn"
@@ -140,22 +140,35 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="p-4 bg-light rounded order-summary" style="min-width: 280px;">
+                    <form id="checkout-form" method="post" action="{% url 'start_checkout' %}" class="p-4 bg-light rounded order-summary" style="min-width: 280px;">
+                    {% csrf_token %}
                         <h5 style="font-family: 'Cormorant Unicase';">Order Summary</h5>
+
+                        <p>Your Cashback Level: <strong>{{ cashback_percentage }}%</strong></p>
+                        <p>Your Bonus Points: <strong>{{ bonus_points }}</strong> pts</p>
+
                         <div class="my-3">
-                            <input type="checkbox" id="cashback" class="form-check-input">
-                            <label for="cashback" class="form-label ms-2" style="font-family: 'Cormorant Unicase';">Use
-                                Your Cashback</label>
+                            <input type="checkbox" id="use-bonus" class="form-check-input">
+                            <label for="use-bonus" class="form-label ms-2" style="font-family: 'Cormorant Unicase';">
+                                Use Your Bonus Points
+                            </label>
                         </div>
-                        <p>Subtotal: <span id="cart-subtotal">{{ total }} KZT</span></p>
-                        <p>Shipping: 1500 KZT</p>
-                        <p>Total: <span id="cart-total">{{ total|add:1500 }} KZT</span></p>
-                        <p style="font-size: 12px;">Cashback 15%</p>
+
+                        <p>Subtotal: <span id="cart-subtotal">{{ total }} ₸</span></p>
+                        <p>Shipping: 1500 ₸</p>
+                        <p>Bonus Applied: <span id="bonus-discount">0 ₸</span></p>
+                        <p>Total: <span id="cart-total">{{ total|add:1500 }} ₸</span></p>
+
+                        <input type="hidden" name="use_bonus" id="input-use-bonus" value="false">
+                        <input type="hidden" name="final_total" id="input-final-total" value="{{ total|add:1500 }}">
+
                         <div class="text-center">
-                            <a href="{% url 'checkout_shipping' %}" class="btn btn-pink mt-3"
-                               style="background-color: #EB889E; color: #fff; padding: 10px 20px; border-radius: 30px;">Checkout</a>
+                            <button type="submit" class="btn btn-pink mt-3"
+                                    style="background-color: #EB889E; color: #fff; padding: 10px 20px; border-radius: 30px;">
+                                Checkout
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             {% else %}
                 <div class="alert alert-info text-center">Your cart is empty.</div>
@@ -223,7 +236,7 @@
                 const priceElement = document.getElementById('price-' + id);
                 const pricePerUnit = parseFloat(priceElement?.dataset.price || 0);
                 const totalElement = document.getElementById('total-' + id);
-                totalElement.innerText = (pricePerUnit * qty).toFixed(2) + ' KZT';
+                totalElement.innerText = (pricePerUnit * qty).toFixed(2) + ' ₸';
                 updateCartTotal();
             }
 
@@ -232,16 +245,29 @@
                 let total = 0;
                 document.querySelectorAll('strong[id^="total-"]').forEach(el => {
                     if (!el.closest('.order-summary')) {
-                        const priceText = el.innerText.replace(' KZT', '').trim();
+                        const priceText = el.innerText.replace(' ₸', '').trim();
                         total += parseFloat(priceText) || 0;
                     }
                 });
-                const subtotalElement = document.getElementById('cart-subtotal');
-                if (subtotalElement) subtotalElement.innerText = total.toFixed(2) + ' KZT';
+
                 const shippingCost = 1500;
-                const totalCartElement = document.getElementById('cart-total');
-                if (totalCartElement) totalCartElement.innerText = (total + shippingCost).toFixed(2) + ' KZT';
+                let bonusDiscount = 0;
+                const bonusAvailable = {{ request.user.bonus.points|default:0 }};
+                const useBonus = document.getElementById('use-bonus')?.checked;
+
+                if (useBonus) {
+                    bonusDiscount = Math.min(bonusAvailable, total + shippingCost);
+                }
+
+                document.getElementById('bonus-discount').innerText = bonusDiscount.toFixed(2) + ' ₸';
+                document.getElementById('cart-subtotal').innerText = total.toFixed(2) + ' ₸';
+                document.getElementById('cart-total').innerText = (total + shippingCost - bonusDiscount).toFixed(2) + ' ₸';
+
+                document.getElementById('input-use-bonus').value = useBonus ? 'true' : 'false';
+                document.getElementById('input-final-total').value = (total + shippingCost - bonusDiscount).toFixed(2);
             }
+
+            document.getElementById('use-bonus')?.addEventListener('change', updateCartTotal);
 
             // Remove button logic
             document.querySelectorAll('.remove-btn').forEach(btn => {

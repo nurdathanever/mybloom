@@ -8,6 +8,14 @@ from orders.models import Order, OrderItem
 from django.utils.dateformat import DateFormat
 import random, string
 
+@login_required
+def start_checkout(request):
+    if request.method == "POST":
+        request.session["use_bonus"] = request.POST.get("use_bonus") == "true"
+        request.session["final_total"] = float(request.POST.get("final_total", 0))
+        return redirect("checkout_shipping")
+
+
 def generate_order_number():
     return ''.join(random.choices(string.digits, k=10))
 
@@ -45,6 +53,7 @@ def checkout_confirmation(request):
     payment = request.session.get("payment", {})
     cart_items = CartItem.objects.filter(user=request.user).select_related('product', 'custom_bouquet').prefetch_related('custom_bouquet__flowers__product', 'custom_bouquet__accessories__product')
     cart_summary = []
+    total = request.session["final_total"]
     for item in cart_items:
         name = ""
         if item.product:
@@ -57,9 +66,8 @@ def checkout_confirmation(request):
             "total_price": int(item.total_price())
         })
 
+    print(f"Total: {total}")
     if request.method == "POST":
-        # Create the order
-        total = sum([item["total_price"] for item in cart_summary])
         order = Order.objects.create(
             order_number=generate_order_number(),
             user=request.user,
@@ -115,7 +123,8 @@ def checkout_confirmation(request):
     return render(request, "orders/confirmation.html", {
         "shipping": shipping,
         "payment": payment,
-        "cart_items": cart_summary
+        "cart_items": cart_summary,
+        "total": total
     })
 
 def order_complete(request):

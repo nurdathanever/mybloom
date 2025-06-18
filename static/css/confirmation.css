@@ -85,3 +85,9 @@ p {
     background-color: #d63384;
     z-index: 1;
 }
+
+#confirmation-container {
+    background: white;
+    height: calc(100vh - 80px - 100px); /* header height + footer height */
+    overflow-y: auto;
+}
