@@ -7,5 +7,6 @@ urlpatterns = [
     path('confirmation/', views.checkout_confirmation, name='checkout_confirmation'),
     path('complete/', views.order_complete, name='order_complete'),
     path('api/detail/<int:order_id>/', views.order_detail_api, name='order_detail_api'),
+    path('api/detail/delete/<int:order_id>/', views.delete_order, name='order_detail_api_delete'),
 
 ]

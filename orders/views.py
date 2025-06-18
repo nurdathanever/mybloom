@@ -1,11 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_page
-
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponseForbidden
 from cart.models import CartItem
 from orders.models import Order, OrderItem
-from django.http import JsonResponse
-from orders.models import OrderItem
 from django.utils.dateformat import DateFormat
 import random, string
 
@@ -149,3 +148,13 @@ def order_detail_api(request, order_id):
         "total": order.total,
     }
     return JsonResponse(response)
+
+@login_required
+@require_POST
+def delete_order(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        order.delete()
+        return JsonResponse({"success": True})
+    except Order.DoesNotExist:
+        return HttpResponseForbidden("You cannot delete this order.")
