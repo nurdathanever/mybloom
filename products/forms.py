@@ -26,23 +26,40 @@ class ProductForm(forms.ModelForm):
 
 class ProductFilterForm(forms.Form):
     flower_ingredients = forms.MultipleChoiceField(
-        choices=[(f.name, f.name) for f in Product.objects.filter(category='flower')],
+        choices=[],
         widget=forms.CheckboxSelectMultiple,
         required=False,
         label="Flower Type"
     )
     size = forms.MultipleChoiceField(
-        choices=[(s, s) for s in Product.objects.exclude(size__isnull=True).values_list('size', flat=True).distinct()],
+        choices=[],
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
     seasonality = forms.MultipleChoiceField(
-        choices=[(s, s) for s in Product.objects.exclude(seasonality__isnull=True).values_list('seasonality', flat=True).distinct()],
+        choices=[],
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
     style = forms.MultipleChoiceField(
-        choices=[(st, st) for st in Product.objects.exclude(style__isnull=True).values_list('style', flat=True).distinct()],
+        choices=[],
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from .models import Product
+
+        self.fields['flower_ingredients'].choices = [
+            (f.name, f.name) for f in Product.objects.filter(category='flower')
+        ]
+        self.fields['size'].choices = [
+            (s, s) for s in Product.objects.exclude(size__isnull=True).values_list('size', flat=True).distinct()
+        ]
+        self.fields['seasonality'].choices = [
+            (s, s) for s in Product.objects.exclude(seasonality__isnull=True).values_list('seasonality', flat=True).distinct()
+        ]
+        self.fields['style'].choices = [
+            (st, st) for st in Product.objects.exclude(style__isnull=True).values_list('style', flat=True).distinct()
+        ]

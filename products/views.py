@@ -10,63 +10,23 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 def is_admin(user):
     return user.is_authenticated and user.role == "admin"
 
-# def product_list(request):
-#     products = Product.objects.filter(category='bouquet')
-#
-#     # Filters
-#     flower_type = request.GET.get("flower_type")
-#     size = request.GET.get("size")
-#     seasonality = request.GET.get("seasonality")
-#     style = request.GET.get("style")
-#     min_price = request.GET.get("min_price")
-#     max_price = request.GET.get("max_price")
-#     sort = request.GET.get("sort")
-#
-#     if flower_type:
-#         products = products.filter(flower_ingredients__name__icontains=flower_type)
-#
-#     if size:
-#         products = products.filter(size=size)
-#
-#     if seasonality:
-#         products = products.filter(seasonality=seasonality)
-#
-#     if style:
-#         products = products.filter(style=style)
-#
-#     if min_price:
-#         products = products.filter(price__gte=min_price)
-#
-#     if max_price:
-#         products = products.filter(price__lte=max_price)
-#
-#     if sort == "rating":
-#         products = products.order_by("-rating")  # add rating field later
-#     elif sort == "arrival":
-#         products = products.order_by("-created_at")
-#     elif sort == "sale":
-#         products = products.order_by("-discount")
-#     elif sort == "bestselling":
-#         products = products.order_by("-sales")  # add sales field later
-#
-#     flower_types = Product.objects.filter(category="flower").values_list("name", flat=True).distinct()
-#
-#     context = {
-#         "products": products,
-#         "flower_types": flower_types,
-#     }
-#     return render(request, "products/product_list.html", context)
-@cache_page(60 * 5)
+@cache_page(60 * 1)
 def product_list(request):
     all_flower_types = Product.objects.filter(category='flower').distinct()
-    products = Product.objects.filter(category='bouquet')
-    form = ProductFilterForm(request.GET)
+    all_bouquets = Product.objects.filter(category='bouquet').order_by('-sales')
 
+    # Mark top 3 as bestseller
+    top3_ids = list(all_bouquets.values_list('id', flat=True)[:3])
+    for product in all_bouquets:
+        product.is_bestseller = product.id in top3_ids
+
+    # Sort remaining by discount
+    sorted_products = sorted(all_bouquets, key=lambda p: (-p.sales if p.id in top3_ids else 0, -p.discount))
+
+    form = ProductFilterForm(request.GET)
     if form.is_valid():
         filters = Q()
-        print(form.cleaned_data)
         if form.cleaned_data['flower_ingredients']:
-            print(form.cleaned_data['flower_ingredients'])
             filters &= Q(flower_ingredients__name__in=form.cleaned_data['flower_ingredients'])
         if form.cleaned_data['size']:
             filters &= Q(size__in=form.cleaned_data['size'])
@@ -74,12 +34,19 @@ def product_list(request):
             filters &= Q(seasonality__in=form.cleaned_data['seasonality'])
         if form.cleaned_data['style']:
             filters &= Q(style__in=form.cleaned_data['style'])
-        products = products.filter(filters).distinct()
+        filtered_products = Product.objects.filter(category='bouquet').filter(filters).distinct()
+        top3_ids = list(filtered_products.order_by('-sales').values_list('id', flat=True)[:3])
+        for product in filtered_products:
+            product.is_bestseller = product.id in top3_ids
+        sorted_products = sorted(filtered_products, key=lambda p: (-p.sales if p.id in top3_ids else 0, -p.discount))
 
-    return render(request, 'products/product_list.html', {'products': products,
-                                                          'filter_form': form, "all_flower_types": all_flower_types})
+    return render(request, 'products/product_list.html', {
+        'products': sorted_products,
+        'filter_form': form,
+        "all_flower_types": all_flower_types
+    })
 
-@cache_page(60 * 5)
+@cache_page(60 * 1)
 def product_detail(request, product_id):
     """Display details of a single product."""
     product = get_object_or_404(Product, id=product_id)

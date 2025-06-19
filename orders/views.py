@@ -98,6 +98,8 @@ def checkout_confirmation(request):
             if cart_item.product:
                 cart_item.product.stock -= cart_item.quantity
                 cart_item.product.save()
+                cart_item.product.sales += cart_item.quantity
+                cart_item.product.save()
 
             # Decrease stock for custom bouquet components
             if cart_item.custom_bouquet:

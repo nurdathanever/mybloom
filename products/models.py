@@ -22,12 +22,13 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=1)
     image = models.ImageField(upload_to="product_images/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
     flower_ingredients = models.ManyToManyField("self", blank=True, symmetrical=False,
                                                 limit_choices_to={'category': 'flower'})
     size = models.CharField(max_length=10, choices=BOUQUET_SIZES, blank=True, null=True)
     seasonality = models.CharField(max_length=10, choices=SEASONALITY_CHOICES, blank=True, null=True)
     style = models.CharField(max_length=20, choices=STYLE_CHOICES, blank=True, null=True)
+    sales = models.PositiveIntegerField(default=0)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
 
     @property
     def discounted_price(self):
