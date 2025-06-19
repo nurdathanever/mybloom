@@ -7,6 +7,7 @@ from cart.models import CartItem
 from orders.models import Order, OrderItem
 from django.utils.dateformat import DateFormat
 import random, string
+from accounts.models import PaymentCard
 
 @login_required
 def start_checkout(request):
@@ -36,9 +37,9 @@ def checkout_shipping(request):
         return redirect("checkout_payment")
     return render(request, "orders/shipping_delivery.html")
 
+@login_required
 def checkout_payment(request):
     if request.method == "POST":
-        # Save payment info to session (mocked for now)
         request.session["payment"] = {
             "card_number": request.POST.get("card_number"),
             "card_name": request.POST.get("card_name"),
@@ -46,7 +47,10 @@ def checkout_payment(request):
             "cvv": request.POST.get("cvv"),
         }
         return redirect("checkout_confirmation")
-    return render(request, "orders/payment.html")
+    cards = PaymentCard.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, "orders/payment.html", {
+        "cards": cards,
+    })
 
 def checkout_confirmation(request):
     shipping = request.session.get("shipping", {})

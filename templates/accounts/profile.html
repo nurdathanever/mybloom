@@ -3,14 +3,20 @@
 {% block title %}My Profile{% endblock %}
 {% block content %}
     <style>
-        body {
-            color: #000000;
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .profile-layout {
+            flex: 1;
             display: flex;
-            min-height: 80vh;
             background-color: #fff;
+        }
+
+        body {
+            color: #000000;
         }
 
         .profile-menu li {
@@ -132,6 +138,7 @@
         }
     </style>
 
+    <div class="page-wrapper">
     <div class="profile-layout">
         {% block sidebar %}{% include "accounts/profile_sidebar.html" %}{% endblock %}
 
@@ -243,6 +250,7 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
     <script>
         function toggleEdit() {

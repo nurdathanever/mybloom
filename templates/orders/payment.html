@@ -15,22 +15,35 @@
             {% csrf_token %}
             <div class="row justify-content-center">
                 <div class="col-md-6">
-                    <div class="mb-3">
-                        <label>Cardholder Name</label>
-                        <input type="text" name="card_name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Card Number</label>
-                        <input type="text" name="card_number" class="form-control" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label>Expiry Date</label>
-                            <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required>
+                    {% if cards %}
+                        <div class="mb-3">
+                            <label for="saved_card">Choose Existing Card</label>
+                            <select name="saved_card" id="saved_card" class="form-control">
+                                <option value="">-- Use new card --</option>
+                                {% for card in cards %}
+                                    <option value="{{ card.id }}">{{ card.name }} (**** **** **** {{ card.card_number|slice:"-4:" }})</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label>CVV</label>
-                            <input type="text" name="cvv" class="form-control" required>
+                    {% endif %}
+                    <div id="new-card-fields">
+                        <div class="mb-3">
+                            <label>Cardholder Name</label>
+                            <input type="text" name="card_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Card Number</label>
+                            <input type="text" name="card_number" class="form-control" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Expiry Date</label>
+                                <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>CVV</label>
+                                <input type="text" name="cvv" class="form-control" required>
+                            </div>
                         </div>
                     </div>
                     <div class="text-center mt-4">
@@ -63,6 +76,21 @@
             cvvInput.addEventListener('input', function (e) {
                 e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3);
             });
+
+            const savedCardSelect = document.getElementById('saved_card');
+            const newCardFields = document.getElementById('new-card-fields');
+            if (savedCardSelect) {
+                savedCardSelect.addEventListener('change', function () {
+                    if (this.value) {
+                        newCardFields.style.display = 'none';
+                        newCardFields.querySelectorAll('input').forEach(input => input.required = false);
+                    } else {
+                        newCardFields.style.display = 'block';
+                        newCardFields.querySelectorAll('input').forEach(input => input.required = true);
+                    }
+                });
+                savedCardSelect.dispatchEvent(new Event('change'));
+            }
         });
     </script>
 {% endblock %}

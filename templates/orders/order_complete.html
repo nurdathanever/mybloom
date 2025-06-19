@@ -5,9 +5,11 @@
 
     <link rel="stylesheet" href="{% static 'css/order_complete.css' %}">
 
-<div class="w-100 bg-white p-5 text-center">
-    <h2 style="font-family: 'Cormorant Unicase'; color: #EB889E;">Thank You for Your Order!</h2>
-    <p style="font-family: 'Cormorant Unicase';">Your order has been successfully placed. We’ll contact you soon with delivery details.</p>
-    <a href="{% url 'product_list' %}" class="btn btn-primary mt-4">Continue Shopping</a>
+<div class="d-flex justify-content-center align-items-center bg-white text-center" style="min-height: calc(100vh - 160px); padding: 3rem;">
+    <div>
+        <h2 style="font-family: 'Cormorant Unicase'; color: #EB889E;">Thank You for Your Order!</h2>
+        <p style="font-family: 'Cormorant Unicase';">Your order has been successfully placed. We’ll contact you soon with delivery details.</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary mt-4">Continue Shopping</a>
+    </div>
 </div>
 {% endblock %}

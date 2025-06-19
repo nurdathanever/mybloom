@@ -3,6 +3,11 @@
 {% block title %}Payment Method{% endblock %}
 {% block content %}
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
         body {
             color: #000000;
         }
@@ -10,7 +15,8 @@
         .payment-container {
             display: flex;
             background: white;
-            min-height: 80vh;
+            height: 100vh;
+            overflow-y: auto;
         }
 
         .sidebar .profile-image {

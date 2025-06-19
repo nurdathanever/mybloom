@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block yourwish %}
-    <div class="container my-5 bg-transparent text-light rounded shadow">
+    <div class="container bg-transparent text-light rounded shadow">
         <ul class="nav nav-tabs justify-content-center mb-4" id="wishTabs" role="tablist" style="position: sticky; top: 0; z-index: 999; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); border-bottom: 1px solid #EB889E;">
             <li class="nav-item" role="presentation">
                 <button class="nav-link px-4 py-2 fw-bold active" id="flowers-tab" data-bs-toggle="tab" data-bs-target="#flowers"
@@ -150,7 +150,7 @@
                 </form>
             </div>
         </div>
-        <div class="wish-footer-bar position-sticky bottom-0 bg-dark text-white text-center py-3" style="z-index: 1050;">
+        <div class="wish-footer-bar position-fixed bottom-0 start-0 end-0 bg-dark text-white text-center py-3" style="z-index: 1050;">
             <h4 class="mb-3">Estimated Price: <span id="estimated-price">0</span> ₸</h4>
             <div class="d-flex justify-content-center">
                 <button class="btn btn-light mx-2 px-4 py-2 rounded-pill fw-bold" onclick="generateRandom()">Random</button>
@@ -508,15 +508,16 @@
         }
 
         .container.my-5 {
-            padding-bottom: 120px;
+            padding-bottom: 180px;
         }
     .wish-footer-bar {
-        position: sticky;
+        position: fixed;
         bottom: 0;
         width: 100%;
         background: rgba(0, 0, 0, 0.8);
         backdrop-filter: blur(4px);
         border-top: 1px solid #EB889E;
+        z-index: 1050;
     }
     </style>
 {% endblock %}
