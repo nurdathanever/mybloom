@@ -2,9 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 from products.models import Product
+from products.forms import ProductForm
 from orders.models import Order
 from accounts.models import User
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
 
 # Only allow admins to access
 def admin_required(user):
@@ -117,3 +121,19 @@ def update_order_status(request, order_id):
         messages.success(request, "Order status updated successfully!")
 
     return redirect("admin_dashboard")
+
+@login_required
+@require_POST
+def update_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    form = ProductForm(request.POST, request.FILES, instance=product)
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect(reverse("admin_products"))
+    return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+@login_required
+@require_POST
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
