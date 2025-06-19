@@ -18,26 +18,26 @@
                     <ul class="list-group mb-2">
                         {% for flower in item.flowers %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ flower.name }} — {{ flower.price }} KZT x {{ flower.quantity }}
-                            <span>{{ flower.total }} KZT</span>
+                            {{ flower.name }} — {{ flower.price }} ₸ x {{ flower.quantity }}
+                            <span>{{ flower.total }} ₸</span>
                         </li>
                         {% endfor %}
                     </ul>
 
                     {% if item.wrapping_paper %}
-                    <p><strong>Wrapping Paper:</strong> {{ item.wrapping_paper.name }} — {{ item.wrapping_paper.price }} KZT</p>
+                    <p><strong>Wrapping Paper:</strong> {{ item.wrapping_paper.name }} — {{ item.wrapping_paper.price }} ₸</p>
                     {% endif %}
 
                     {% if item.ribbon %}
-                    <p><strong>Ribbon:</strong> {{ item.ribbon.name }} — {{ item.ribbon.price }} KZT</p>
+                    <p><strong>Ribbon:</strong> {{ item.ribbon.name }} — {{ item.ribbon.price }} ₸</p>
                     {% endif %}
 
                     {% if item.postcard %}
-                    <p><strong>Postcard:</strong> {{ item.postcard.name }} — {{ item.postcard.price }} KZT</p>
+                    <p><strong>Postcard:</strong> {{ item.postcard.name }} — {{ item.postcard.price }} ₸</p>
                     <p><strong>Greeting Message:</strong> "{{ item.postcard.message }}"</p>
                     {% endif %}
 
-                    <h5 class="mt-3">Total: <span class="text-danger">{{ item.total_price }} KZT</span></h5>
+                    <h5 class="mt-3">Total: <span class="text-danger">{{ item.total_price }} ₸</span></h5>
                 </div>
             </div>
         </div>

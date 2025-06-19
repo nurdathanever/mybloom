@@ -6,7 +6,6 @@
 {% block content %}
 <div style="padding-top: 40px">
     <link rel="stylesheet" href="{% static 'css/product_list_style.css' %}">
-
     <div class="overlay" onclick="closeFilter()"></div>
 
     <section class="collection">
@@ -104,14 +103,15 @@
             {% for product in products %}
             <div class="bouquet-card {% if forloop.counter <= 3 %}bestseller{% endif %}"
                  onclick="showBouquetDetails(
-                                     '{{ product.name }}',
-                                     '{{ product.description }}',
-                                     '{% if product.discount > 0 %}{{ product.discounted_price|floatformat:0 }}{% else %}{{ product.price|floatformat:0 }}{% endif %}',
-                                     '{{ product.image.url }}',
-                                     '{% for f in product.flower_ingredients.all %}{{ f.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                                     '{{ product.size }}',
-                                     '{{ product.seasonality }}',
-                                     '{{ product.style }}')">
+                     '{{ product.id }}',
+                     '{{ product.name }}',
+                     '{{ product.description }}',
+                     '{% if product.discount > 0 %}{{ product.discounted_price|floatformat:0 }}{% else %}{{ product.price|floatformat:0 }}{% endif %}',
+                     '{{ product.image.url }}',
+                     '{% for f in product.flower_ingredients.all %}{{ f.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                     '{{ product.size }}',
+                     '{{ product.seasonality }}',
+                     '{{ product.style }}')">
                 {% if product.discount > 0 %}
                 <div class="discount-badge">-{{ product.discount|floatformat:0 }}%</div>
                 {% endif %}
@@ -123,10 +123,10 @@
                     <div class="bouquet-info">
                         <h3>{{ product.name }}</h3>
                         {% if product.discount > 0 %}
-                        <p class="price-discount">{{ product.discounted_price|floatformat:0 }} KZT</p>
-                        <p class="price-original">{{ product.price|floatformat:0 }} KZT</p>
+                        <p class="price-discount">{{ product.discounted_price|floatformat:0 }} ₸</p>
+                        <p class="price-original">{{ product.price|floatformat:0 }} ₸</p>
                         {% else %}
-                        <p class="price">{{ product.price|floatformat:0 }} KZT</p>
+                        <p class="price">{{ product.price|floatformat:0 }} ₸</p>
                         {% endif %}
                         <a href="{% url 'add_to_cart' product.id %}">
                             <button class="buy-now" onclick="event.stopPropagation();">Buy Now</button>
@@ -156,6 +156,32 @@
                     <p><strong>Style:</strong> <span id="modalStyle"></span></p>
                 </div>
             </div>
+            <div class="modal-reviews">
+                <h5>Reviews:</h5>
+                <div id="modalReviews">
+                    <p>Loading reviews...</p>
+                </div>
+                <div class="modal-review-form mt-3">
+                    <h5>Leave a Review:</h5>
+                    <form id="reviewForm" onsubmit="submitReview(event)">
+                        <div class="mb-2">
+                            <label>Rating:</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rating" value="5"><label for="star5">&#9733;</label>
+                                <input type="radio" id="star4" name="rating" value="4"><label for="star4">&#9733;</label>
+                                <input type="radio" id="star3" name="rating" value="3"><label for="star3">&#9733;</label>
+                                <input type="radio" id="star2" name="rating" value="2"><label for="star2">&#9733;</label>
+                                <input type="radio" id="star1" name="rating" value="1"><label for="star1">&#9733;</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label for="reviewComment">Comment:</label>
+                            <textarea id="reviewComment" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -164,9 +190,94 @@
 {% block scripts %}
 <script src="{% static 'js/product_list.js' %}"></script>
 <script>
+    let currentProductId = null;
+
     function clearFilters() {
         document.querySelectorAll('.filter-options-container input[type="checkbox"]').forEach(cb => cb.checked = false);
         applyFilters();
+    }
+
+    function showBouquetDetails(id, name, description, price, imageUrl, ingredients, size, seasonality, style) {
+        currentProductId = id;
+        document.getElementById("modalName").textContent = name;
+        document.getElementById("modalDescription").textContent = description;
+        document.getElementById("modalPrice").textContent = price + " ₸";
+        document.getElementById("modalImage").src = imageUrl;
+        document.getElementById("modalIngredients").textContent = ingredients;
+        document.getElementById("modalSize").textContent = size;
+        document.getElementById("modalSeasonality").textContent = seasonality;
+        document.getElementById("modalStyle").textContent = style;
+
+        const reviewsContainer = document.getElementById("modalReviews");
+        reviewsContainer.innerHTML = "<p>Loading reviews...</p>";
+
+        fetch(`/reviews/api/get_reviews/${id}/`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Review data:", data);
+                reviewsContainer.innerHTML = "";
+
+                const reviews = data.reviews;
+
+                if (!Array.isArray(reviews)) {
+                    reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
+                    return;
+                }
+
+                if (reviews.length === 0) {
+                    reviewsContainer.innerHTML = "<p>No reviews yet.</p>";
+                } else {
+                    reviews.forEach(review => {
+                        const item = document.createElement("div");
+                        item.innerHTML = `<strong>${review.user}</strong> rated ${review.rating}/5<br><em>${review.comment}</em><hr>`;
+                        reviewsContainer.appendChild(item);
+                    });
+                }
+            });
+        document.getElementById("bouquetModal").style.display = "block";
+    }
+
+    function submitReview(event) {
+        event.preventDefault();
+        const rating = document.querySelector('input[name="rating"]:checked')?.value;
+        const comment = document.getElementById("reviewComment").value;
+
+        fetch(`/reviews/api/add_review/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie('csrftoken'),
+            },
+            body: JSON.stringify({
+                product_id: currentProductId,
+                rating: rating,
+                comment: comment
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Review submitted!");
+                showBouquetDetails(currentProductId); // Reload modal content
+            } else {
+                alert("Error: " + data.error);
+            }
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 </script>
 {% endblock %}

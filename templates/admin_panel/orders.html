@@ -53,7 +53,7 @@
                     <td>{{ group.order.street }} st., {{ group.order.building }} bld., {{ group.order.apartment }}
                         apt.
                     </td>
-                    <td>{{ group.order.total }} KZT</td>
+                    <td>{{ group.order.total }} ₸</td>
                     <td>{{ group.order.delivery_time|default:"—" }}</td>
                     <td>{{ group.order.comment|default:"—" }}</td>
                     <td>
@@ -112,7 +112,7 @@
                                                     <li>{{ modal_item.count }} × {{ modal_item.name }}</li>
                                                 {% endfor %}
                                             </ul>
-                                            <p><strong>Total:</strong> {{ group.order.total }} KZT</p>
+                                            <p><strong>Total:</strong> {{ group.order.total }} ₸</p>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

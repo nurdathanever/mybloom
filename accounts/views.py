@@ -105,7 +105,6 @@ def my_bonuses_view(request):
 
 
 @login_required
-@cache_page(60 * 5)
 def order_history_view(request):
     status_filter = request.GET.get("filter")
     all_orders = Order.objects.filter(user=request.user).order_by('-ordered_at').prefetch_related(
@@ -151,7 +150,6 @@ def order_history_view(request):
         'filter': status_filter,
     })
 
-@cache_page(60 * 5)
 @login_required
 def order_history_ajax_view(request):
     status_filter = request.GET.get("filter")

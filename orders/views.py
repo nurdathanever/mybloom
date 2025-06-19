@@ -132,7 +132,6 @@ def checkout_confirmation(request):
 def order_complete(request):
     return render(request, "orders/order_complete.html")
 
-# @cache_page(60 * 5)
 @login_required
 def order_detail_api(request, order_id):
     order = Order.objects.select_related('user').prefetch_related('items__product', 'items__custom_bouquet').get(id=order_id, user=request.user)

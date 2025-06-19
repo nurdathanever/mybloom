@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function showBouquetDetails(name, description, price, imageUrl, ingredients, size, seasonality, style) {
     document.getElementById('modalName').innerText = name;
     document.getElementById('modalDescription').innerText = description;
-    document.getElementById('modalPrice').innerText = price + ' KZT';
+    document.getElementById('modalPrice').innerText = price + ' ₸';
     document.getElementById('modalImage').src = imageUrl;
     document.getElementById('modalIngredients').innerText = "Flowers: " + ingredients;
     document.getElementById('bouquetModal').style.display = 'block';

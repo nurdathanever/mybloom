@@ -85,12 +85,12 @@
                         <button type="button" class="btn btn-dark btn-sm plus-btn" data-id="{{ flower.id }}">+</button>
                     </div>
                     <input type="hidden" name="qty_{{ flower.id }}" id="input-qty-{{ flower.id }}" value="0">
-                    <p class="flower-price">{{ flower.price }} KZT</p>
+                    <p class="flower-price">{{ flower.price }} ₸</p>
                 </div>
             {% endfor %}
         </div>
 
-        <h4 class="text-light">Total Price: <span id="total-price">0</span> KZT</h4>
+        <h4 class="text-light">Total Price: <span id="total-price">0</span> ₸</h4>
 
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-primary">Next</button>
