@@ -169,7 +169,10 @@ def order_detail_api(request, order_id):
 def delete_order(request, order_id):
     try:
         order = Order.objects.get(id=order_id, user=request.user)
-        order.delete()
-        return JsonResponse({"success": True})
+        if order.status.lower() == 'delivered':
+            order.delete()
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"error": "Only delivered orders can be deleted."}, status=403)
     except Order.DoesNotExist:
         return HttpResponseForbidden("You cannot delete this order.")
